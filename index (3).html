@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Entrenador de zonas de bomberos</title>
+<style>
+:root{--bg:#f4f2ec;--card:#fff;--ink:#1d1d1b;--mut:#6b6a64;--line:#e2dfd6;--acc:#c8321e;--accink:#fff;--ok:#1f7a45;--okbg:#dff3e6;--ko:#b3261e;--kobg:#fbe0dc;--sel:#fde9e4;
+ --p0:#ec4899;--p1:#f97316;--p2:#3b82f6;--p3:#22c55e;--p4:#92400e;--shadow:0 1px 2px rgba(0,0,0,.04),0 8px 24px -14px rgba(0,0,0,.25);
+ box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#161615;--card:#222221;--ink:#f1efe8;--mut:#a3a199;--line:#38372f;--acc:#ef6a55;--accink:#1a0a07;--ok:#6fd195;--okbg:#17341f;--ko:#f08a80;--kobg:#3b1a17;--sel:#3a2420;--p4:#c2691f;--shadow:none}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#161615;--card:#222221;--ink:#f1efe8;--mut:#a3a199;--line:#38372f;--acc:#ef6a55;--accink:#1a0a07;--ok:#6fd195;--okbg:#17341f;--ko:#f08a80;--kobg:#3b1a17;--sel:#3a2420;--p4:#c2691f;--shadow:none}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
+main{max-width:660px;margin:0 auto;padding:16px}
+.top{display:flex;align-items:center;gap:12px;margin:4px 0 14px}
+.logo{width:46px;height:46px;flex:none;border-radius:13px;background:var(--acc);display:grid;place-items:center;font-size:24px;box-shadow:var(--shadow)}
+h1{font-size:20px;margin:0;line-height:1.15}
+.sub{font-size:13px;color:var(--mut)}
+.tabs{display:flex;gap:4px;margin-bottom:14px;padding:4px;border-radius:13px;background:var(--card);border:1px solid var(--line)}
+.tab{flex:1;padding:9px 6px;border:0;background:transparent;color:var(--mut);border-radius:10px;font:inherit;font-weight:600;cursor:pointer}
+.tab[aria-selected="true"]{background:var(--acc);color:var(--accink)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.chip{padding:5px 11px;border-radius:999px;background:var(--card);border:1px solid var(--line);font-size:13px;font-weight:700;white-space:nowrap}
+.chip.ok{color:var(--ok)}.chip.ko{color:var(--ko)}
+#filt{margin-left:auto}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:14px;box-shadow:var(--shadow)}
+.row{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.mut{color:var(--mut);font-size:14px}
+select{font:inherit;font-size:14px;padding:7px 10px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);max-width:100%}
+.kicker{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--acc)}
+.street{font-size:26px;font-weight:750;line-height:1.2;margin:4px 0 14px;word-break:break-word}
+.lab{font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--mut);margin:14px 0 6px}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px}
+.opt{display:flex;align-items:center;justify-content:center;gap:6px;min-height:48px;padding:10px 8px;border:2px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;font:inherit;font-weight:650;cursor:pointer;transition:border-color .12s,background .12s,transform .08s}
+.opt:hover:not(:disabled){border-color:var(--mut)}
+.opt:active:not(:disabled){transform:scale(.97)}
+.opt.sel{border-color:var(--acc);background:var(--sel)}
+.opt.good{border-color:var(--ok);background:var(--okbg);color:var(--ok)}
+.opt.bad{border-color:var(--ko);background:var(--kobg);color:var(--ko)}
+.opt:disabled{cursor:default}
+.opt:disabled:not(.good):not(.bad){opacity:.55}
+.dot{width:10px;height:10px;border-radius:50%;display:inline-block;flex:none}
+.pk{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.sl{margin:0 4px;opacity:.6}
+.res{margin-top:14px;padding:12px 14px;border-radius:12px;font-weight:650;animation:pop .2s ease-out}
+.res.ok{background:var(--okbg);color:var(--ok)}.res.ko{background:var(--kobg);color:var(--ko)}
+@keyframes pop{from{transform:scale(.98);opacity:.3}to{transform:none;opacity:1}}
+.btn{padding:12px 18px;border:0;border-radius:12px;background:var(--acc);color:var(--accink);font:inherit;font-weight:700;cursor:pointer}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink);font-weight:600}
+.btn.small{padding:8px 14px;font-size:14px}
+.opt:focus-visible,.btn:focus-visible,.tab:focus-visible,.hit:focus-visible,.zbar button:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.foot{margin-top:14px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:14px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;text-align:center;box-shadow:var(--shadow)}
+.stat b{display:block;font-size:22px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+td,th{padding:7px 4px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{color:var(--mut);font-weight:600}
+.bar{height:8px;border-radius:4px;background:var(--line);overflow:hidden;margin-top:4px}
+.bar i{display:block;height:100%;background:var(--ok)}
+.wrap{overflow-x:auto}
+.note{margin-top:10px;padding:10px 12px;border-radius:12px;background:var(--sel);border:1px solid var(--line);font-size:14px;white-space:pre-line}
+.map{margin-top:12px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--bg)}
+.map .cap{font-size:12px;color:var(--mut);padding:6px 10px}
+.map svg{cursor:grab}.map svg:active{cursor:grabbing}
+.lg span{display:inline-flex;align-items:center;margin-right:12px}
+.lg i{width:11px;height:11px;border-radius:3px;margin-right:5px;display:inline-block}
+.lg b{text-decoration:underline;text-underline-offset:3px}
+.maplink{display:inline-block;margin:2px 10px 10px;padding:9px 12px;border-radius:10px;border:1px solid var(--line);color:var(--ink);text-decoration:none;font-weight:600;background:var(--card)}
+.mapwrap{position:relative}
+.mapsw{font:inherit;font-weight:700;cursor:pointer;margin-top:10px}
+.rwrap{position:relative}
+.rwrap .zbar{z-index:1000}
+.rpin{background:none;border:0}
+.rmap{width:100%;aspect-ratio:1/1;max-height:560px;background:var(--bg)}
+.rmap .msg{padding:14px;color:var(--mut);font-size:14px}
+.leaflet-tooltip.zlab{background:transparent;border:0;box-shadow:none;font-weight:700;font-size:13px;color:#111;text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff;padding:0}
+.leaflet-tooltip.zlab:before{display:none}
+.zbar{position:absolute;top:8px;right:8px;display:flex;flex-direction:column;gap:6px}
+.zbar button{width:40px;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:700 20px/1 system-ui,sans-serif;cursor:pointer;padding:0;box-shadow:var(--shadow)}
+input[type=search]{width:100%;font:inherit;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+input[type=search]:focus{outline:2px solid var(--acc);outline-offset:1px}
+.results{margin-top:8px;max-height:420px;overflow-y:auto}
+.hit{display:block;width:100%;text-align:left;padding:10px 6px;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--ink);font:inherit;cursor:pointer;border-radius:8px}
+.hit:hover{background:var(--sel)}
+.hit b{display:block;font-weight:650}
+.ans{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ans>div{padding:10px 12px;border-radius:12px;background:var(--bg);border:1px solid var(--line);font-weight:700}
+.ans .lab{margin:0 0 4px}
+.hide{display:none!important}
+/* Modo examen */
+.xhead{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.xhead .chip{flex:none}
+.xprog{flex:1;height:8px;border-radius:4px;background:var(--line);overflow:hidden}
+.xprog i{display:block;height:100%;background:var(--acc);transition:width .2s}
+.xrules{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}
+.xrules>div{padding:12px 8px;border-radius:12px;background:var(--bg);border:1px solid var(--line);text-align:center;font-size:13px;color:var(--mut)}
+.xrules b{display:block;font-size:20px;color:var(--ink)}
+.xrules .ok b{color:var(--ok)}.xrules .ko b{color:var(--ko)}
+.grade{text-align:center;padding:8px 0 4px}
+.grade b{display:block;font-size:56px;line-height:1.05;font-weight:800;letter-spacing:-.02em}
+.grade b small{font-size:22px;color:var(--mut);font-weight:700}
+.grade.pos b{color:var(--ok)}.grade.neg b{color:var(--ko)}
+.xdots{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}
+.xdots button{width:30px;height:30px;border-radius:8px;border:2px solid var(--line);background:var(--card);color:var(--mut);font:700 12px/1 system-ui,sans-serif;cursor:pointer;padding:0}
+.xdots button.on{border-color:var(--acc);color:var(--ink)}
+.xdots button.cur{background:var(--acc);border-color:var(--acc);color:var(--accink)}
+.xrev .hit{display:flex;gap:10px;align-items:flex-start}
+.xrev .ic{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:14px}
+.xrev .ic.ok{background:var(--okbg);color:var(--ok)}.xrev .ic.ko{background:var(--kobg);color:var(--ko)}.xrev .ic.bl{background:var(--bg);color:var(--mut);border:1px solid var(--line)}
+.xrev .pt{margin-left:auto;flex:none;font-weight:800;font-size:14px}
+.xrev .pt.ok{color:var(--ok)}.xrev .pt.ko{color:var(--ko)}.xrev .pt.bl{color:var(--mut)}
+.xbtns{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.seg{display:flex;gap:4px;padding:4px;border-radius:12px;background:var(--bg);border:1px solid var(--line)}
+.seg button{flex:1;padding:9px 6px;border:0;background:transparent;color:var(--mut);border-radius:9px;font:inherit;font-size:14px;font-weight:650;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--acc);color:var(--accink)}
+.seg button:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+#xsum{grid-template-columns:repeat(3,1fr)}
+/* Acceso */
+.loginwrap{max-width:380px;margin:12vh auto 0;padding:16px}
+.loginwrap form{display:grid;gap:10px;margin-top:12px}
+input[type=email],input[type=password]{width:100%;font:inherit;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+input[type=email]:focus,input[type=password]:focus{outline:2px solid var(--acc);outline-offset:1px}
+.lerr{color:var(--ko);font-weight:650;font-size:14px;min-height:20px}
+</style>
+</head>
+<body>
+<div class="loginwrap" id="login">
+ <div class="card">
+  <div class="top" style="margin-top:0"><div class="logo" aria-hidden="true">🚒</div><div><h1>Entrenador de zonas de bomberos</h1><div class="sub">Acceso privado</div></div></div>
+  <form id="lform" autocomplete="on">
+   <input id="lmail" type="email" placeholder="Correo electrónico" autocomplete="username" required aria-label="Correo electrónico">
+   <input id="lpass" type="password" placeholder="Contraseña" autocomplete="current-password" required aria-label="Contraseña">
+   <button class="btn" id="lgo" type="submit">Entrar</button>
+   <div class="lerr" id="lerr" role="alert"></div>
+  </form>
+ </div>
+</div>
+<main id="app" class="hide">
+<header class="top">
+ <div class="logo" aria-hidden="true">🚒</div>
+ <div><h1>Entrenador de zonas de bomberos</h1><div class="sub">¿Qué parque actúa y cuál coopera?</div></div>
+ <button class="btn ghost small" id="logout" type="button" style="margin-left:auto">Salir</button>
+</header>
+<div class="tabs" role="tablist">
+ <button class="tab" role="tab" id="t1" aria-selected="true">Jugar</button>
+ <button class="tab" role="tab" id="t4" aria-selected="false">Examen</button>
+ <button class="tab" role="tab" id="t3" aria-selected="false">Buscar</button>
+ <button class="tab" role="tab" id="t2" aria-selected="false">Estadísticas</button>
+</div>
+
+<section id="play">
+ <div class="chips">
+  <span class="chip ok" id="cOk">0 aciertos</span><span class="chip ko" id="cKo">0 fallos</span><span class="chip" id="cSt" title="Aciertos seguidos">🔥 Racha 0</span>
+  <select id="filt" aria-label="Qué calles practicar"></select>
+ </div>
+ <div class="card">
+  <div class="kicker" id="kind">Calle</div>
+  <div class="street" id="street">Cargando…</div>
+  <div class="lab">Parque que actúa</div><div class="opts" id="oa"></div>
+  <div class="lab" id="lc">Parque que coopera</div><div class="opts" id="oc"></div>
+  <div class="res hide" id="res" role="status"></div>
+  <div class="note hide" id="note"></div>
+  <div class="map hide" id="map"></div>
+  <div class="row foot"><span class="mut" id="save"></span><span><button class="btn ghost small" id="skip" type="button">No lo sé</button><button class="btn hide" id="next" type="button">Siguiente →</button></span></div>
+ </div>
+</section>
+
+<section id="exam" class="hide">
+ <div class="card" id="xstart">
+  <div class="kicker">Modo examen</div>
+  <div class="street" style="margin-bottom:6px">Examen sin pistas, nota sobre 10</div>
+  <div class="mut">Verás los resultados al entregar. La nota mínima es 0.</div>
+  <div class="lab">Qué se pregunta</div>
+  <div class="seg" id="xmode" role="group" aria-label="Qué se pregunta"><button type="button" data-v="both">Las dos</button><button type="button" data-v="a">Solo quién actúa</button><button type="button" data-v="c">Solo quién coopera</button></div>
+  <div class="lab">Número de preguntas</div>
+  <div class="seg" id="xcount" role="group" aria-label="Número de preguntas"><button type="button" data-v="10">10</button><button type="button" data-v="20">20</button><button type="button" data-v="30">30</button><button type="button" data-v="50">50</button></div>
+  <div class="xrules"><div class="ok"><b id="xokv">+0,5</b>por acierto</div><div class="ko"><b id="xkov">−0,5</b>por fallo</div><div><b>0</b>en blanco</div></div>
+  <div class="mut" id="xrule2" style="margin:-4px 0 10px"></div>
+  <div class="mut" id="xhist" style="margin-bottom:12px"></div>
+  <button class="btn" id="xgo" type="button">Empezar examen</button>
+ </div>
+ <div class="card hide" id="xhcard"><div class="lab" style="margin-top:0">Historial de exámenes</div><div class="wrap" id="xhtab"></div>
+  <div class="mut" style="margin-top:8px">A = aciertos · F = fallos · B = en blanco</div>
+  <div class="row foot"><span class="mut" id="xsync"></span><button class="btn ghost small" id="xhclr" type="button">Borrar historial</button></div>
+ </div>
+ <div class="hide" id="xrun">
+  <div class="xhead"><span class="chip" id="xnum">1 / 20</span><div class="xprog"><i id="xbar"></i></div><span class="chip" id="xans">0 respondidas</span></div>
+  <div class="card">
+   <div class="kicker" id="xkind">Calle</div>
+   <div class="street" id="xstreet"></div>
+   <div id="xba"><div class="lab">Parque que actúa</div><div class="opts" id="xa"></div></div>
+   <div id="xbc"><div class="lab">Parque que coopera</div><div class="opts" id="xc"></div></div>
+   <div class="row foot"><button class="btn ghost small" id="xprev" type="button">← Anterior</button>
+    <span class="xbtns"><button class="btn ghost small" id="xclr" type="button">Borrar respuesta</button><button class="btn" id="xnext" type="button">Siguiente →</button></span></div>
+   <div class="xdots" id="xdots" aria-label="Ir a una pregunta"></div>
+  </div>
+  <div class="row"><span class="mut" id="xmsg"></span><button class="btn ghost small" id="xquit" type="button">Abandonar examen</button></div>
+ </div>
+ <div class="hide" id="xend">
+  <div class="card">
+   <div class="kicker" id="xendk">Resultado del examen</div>
+   <div class="grade" id="xgrade"></div>
+   <div class="stats" id="xsum" style="margin:10px 0 4px"></div>
+   <div class="xbtns"><button class="btn ghost" id="xfix" type="button">Practicar mis fallos</button><button class="btn" id="xagain" type="button">Hacer otro examen</button></div>
+  </div>
+  <div class="card"><div class="lab" style="margin-top:0">Corrección · pulsa una calle para verla en el mapa</div><div class="xrev" id="xrev"></div></div>
+ </div>
+</section>
+
+<section id="find" class="hide">
+ <div class="card">
+  <input id="q" type="search" placeholder="Escribe una calle o lugar…" autocomplete="off" aria-label="Buscar calle o lugar">
+  <div class="mut" id="qn" style="margin-top:8px"></div>
+  <div class="results" id="qr"></div>
+ </div>
+ <div class="card hide" id="fd">
+  <div class="kicker" id="fkind">Calle</div>
+  <div class="street" id="fname"></div>
+  <div id="fans"></div>
+  <div class="mut" id="fhist" style="margin-top:8px"></div>
+  <div class="note hide" id="fnote"></div>
+  <div class="map" id="fmap"></div>
+ </div>
+</section>
+
+<section id="stats" class="hide">
+ <div class="stats" id="sum"></div>
+ <div class="card"><div class="lab" style="margin-top:0">Por parque que actúa</div><div id="bypark"></div></div>
+ <div class="card"><div class="lab" style="margin-top:0">Las que más fallas</div><div class="wrap" id="worst"></div>
+  <div style="margin-top:10px"><button class="btn" id="train">Practicar mis fallos</button></div></div>
+ <div class="card"><div class="lab" style="margin-top:0">Las que mejor te saben</div><div class="wrap" id="best"></div></div>
+ <div class="card"><button class="btn ghost" id="reset">Borrar mi progreso</button> <span class="mut" id="rmsg"></span></div>
+</section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+let S={},cur=null,selA=null,selC=[],done=false,filt="all",recent=[],sess={ok:0,ko:0,st:0},armed=false,bestSt=0;
+let P,D,ZN,G,PK,BYID={},IDX,ZS,ZB,ZL,ZP; /* se rellenan tras iniciar sesión (datos privados) */
+try{bestSt=+localStorage.getItem("zb_best")||0}catch(_){}
+const pl=(n,a,b)=>n+" "+(n===1?a:b);
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+const pk=i=>'<span class="pk"><i class="dot" style="background:var(--p'+i+')"></i>'+P[i]+'</span>';
+const pks=a=>a.map(pk).join('<span class="sl">/</span>');
+
+function status(t){$("save").textContent=t||""}
+/* Guardado en Supabase (cola con reintentos). Cada usuario solo ve y guarda lo suyo (RLS) */
+const sb=window.supabase.createClient(CONFIG.SUPABASE_URL,CONFIG.SUPABASE_ANON_KEY);
+const GS=true;
+let SESSION=null,started=false;
+let queue=[],sending=false,retryT=null;
+function enqueue(job){queue.push(job);flush()}
+async function send(j){
+ let r;
+ if(j.t==="ans") r=await sb.rpc("save_answer",{p_id:j.id,p_name:j.name,p_ok:j.ok});
+ else if(j.t==="exam") r=await sb.from("exams").upsert({t:j.r.t,mode:XMODES[j.r.m]||j.r.m,n:j.r.n,ok:j.r.ok,ko:j.r.ko,b:j.r.b,g:Math.round(j.r.g*100)/100},{onConflict:"user_id,t",ignoreDuplicates:true});
+ else if(j.t==="xclear") r=await sb.from("exams").delete().gte("t",0);
+ else r=await sb.from("progress").delete().neq("street_id","");
+ if(r.error)throw r.error;
+}
+function flush(){
+ if(sending||!queue.length) return;
+ if(!SESSION){status("Inicia sesión para guardar el progreso");return}
+ sending=true;status("Guardando…");
+ const j=queue[0];
+ send(j).then(()=>{
+   queue.shift();sending=false;
+   if(j.t==="exam")xhistMark(j.r.t);if(j.t==="exam"||j.t==="xclear")xsyncMsg();
+   if(queue.length)flush();else status("Guardado en la base de datos");
+  }).catch(()=>{
+   sending=false;status("No se pudo guardar. Reintentando…");
+   clearTimeout(retryT);retryT=setTimeout(flush,5000);
+  });
+}
+/* Avisa antes de cerrar si quedan respuestas sin guardar */
+window.addEventListener("beforeunload",e=>{if(queue.length){e.preventDefault();e.returnValue=""}});
+async function load(){
+ status("Cargando tu progreso…");
+ const {data,error}=await sb.from("progress").select("street_id,ok,ko");
+ if(error){status("No se pudo cargar el progreso");return}
+ S={};(data||[]).forEach(r=>{S[r.street_id]=[r.ok,r.ko]});
+ status("Progreso cargado");xload();
+}
+function weight(d){
+ const r=S[d[3]]; if(!r||!(r[0]+r[1])) return 2;
+ const ok=r[0],ko=r[1],rate=ko/(ok+ko);
+ return Math.max(.15,.3+4*rate-.15*Math.max(0,ok-ko));
+}
+function pool(){
+ if(filt==="fails") return D.filter(d=>S[d[3]]&&S[d[3]][1]>0);
+ if(filt==="all") return D;
+ return D.filter(d=>d[1].includes(+filt));
+}
+function pick(){
+ let p=pool(); if(!p.length){p=D;filt="all";$("filt").value="all"}
+ const q=p.filter(d=>!recent.includes(d[3])); const c=q.length?q:p;
+ let t=c.reduce((s,d)=>s+weight(d),0),x=Math.random()*t;
+ for(const d of c){x-=weight(d);if(x<=0)return d}
+ return c[c.length-1];
+}
+let copts=null,aopts=null;
+const same=(x,y)=>!!x&&!!y&&x.length===y.length&&x.every(v=>y.includes(v));
+function pairs(correct,exclude){
+ const ps=[0,1,2,3,4].filter(i=>!exclude.includes(i)||correct.includes(i)),L=[];
+ for(let a=0;a<ps.length;a++)for(let b=a+1;b<ps.length;b++){const x=[ps[a],ps[b]];L.push(same(x,correct)?correct.slice():x)}
+ return L;
+}
+function mkopts(){
+ aopts=cur[1].length>1?pairs(cur[1],[]):null;
+ copts=cur[2].length>1?pairs(cur[2],cur[1]):null;
+}
+function buttons(el,which){
+ el.innerHTML="";
+ const o=which==="a"?aopts:copts;
+ (o||P.map((_,i)=>[i])).forEach((x,i)=>{
+  const b=document.createElement("button");b.type="button";b.className="opt";b.dataset.i=i;
+  b.innerHTML=x.map(j=>'<i class="dot" style="background:var(--p'+j+')"></i>').join("")+"<span>"+x.map(j=>P[j]).join("/")+"</span>";
+  b.onclick=()=>choose(which,i);el.appendChild(b)});
+}
+function choose(which,i){
+ if(done||!cur) return;
+ if(which==="a")selA=i;
+ else selC=[i];
+ mark();
+ if(selA!==null&&selC.length===1) check(false);
+}
+function mark(){
+ [["oa",[selA]],["oc",selC]].forEach(([id,s])=>[...$(id).children].forEach(b=>b.classList.toggle("sel",s.includes(+b.dataset.i))));
+}
+/* Mapa de zonas: ZN = zonas [nombre, parque que actúa, trazado, anclas de etiqueta x,y,...]; G = geometría de cada calle (metros, origen propio) */
+const X0=720368,Y0=4383254;
+const MYMAPS="https://www.google.com/maps/d/u/0/viewer?mid=1R88MlU7ELAWVJZfPpJn3WsWmIt0";
+function utm2ll(x,y){
+ const a=6378137,f=1/298.257223563,k0=.9996,n=f/(2-f),A=a/(1+n)*(1+n*n/4+Math.pow(n,4)/64);
+ const b=[n/2-2*n*n/3+37*Math.pow(n,3)/96,n*n/48+Math.pow(n,3)/15,17*Math.pow(n,3)/480];
+ const d=[2*n-2*n*n/3-2*Math.pow(n,3),7*n*n/3-8*Math.pow(n,3)/5,56*Math.pow(n,3)/15];
+ const xi=y/(k0*A),eta=(x-500000)/(k0*A);
+ let xi2=xi,eta2=eta;
+ for(let j=1;j<=3;j++){xi2-=b[j-1]*Math.sin(2*j*xi)*Math.cosh(2*j*eta);eta2-=b[j-1]*Math.cos(2*j*xi)*Math.sinh(2*j*eta)}
+ const chi=Math.asin(Math.sin(xi2)/Math.cosh(eta2));
+ let phi=chi;for(let j=1;j<=3;j++)phi+=d[j-1]*Math.sin(2*j*chi);
+ const lam=-3*Math.PI/180+Math.atan2(Math.sinh(eta2),Math.cos(xi2));
+ return [phi*180/Math.PI,lam*180/Math.PI];
+}
+/* Segmentos de cada zona (para colocar las etiquetas lejos de los bordes) */
+function segs(d){
+ const out=[],re=/M(-?\d+) (-?\d+)l?([^M]*)/g;let m;
+ while((m=re.exec(d))){let x=+m[1],y=+m[2];const sx=x,sy=y;
+  const t=m[3].replace(/z/gi," ").trim(),q=t?t.split(/\s+/).map(Number):[];
+  for(let i=0;i+1<q.length;i+=2){const nx=x+q[i],ny=y+q[i+1];out.push([x,y,nx,ny]);x=nx;y=ny}
+  if(x!==sx||y!==sy)out.push([x,y,sx,sy])}
+ return out;
+}
+function dseg(px,py,s){const dx=s[2]-s[0],dy=s[3]-s[1],L=dx*dx+dy*dy,u=L?Math.max(0,Math.min(1,((px-s[0])*dx+(py-s[1])*dy)/L)):0;return Math.hypot(s[0]+u*dx-px,s[1]+u*dy-py)}
+function buildData(){
+PK=P;BYID={};D.forEach(d=>BYID[d[3]]=d);IDX=D.map(d=>norm(d[0]+" "+(d[5]||"")));
+ZS=ZN.map(z=>segs(z[2]));
+ZB=[1e9,1e9,-1e9,-1e9];ZS.forEach(L=>L.forEach(s=>{ZB[0]=Math.min(ZB[0],s[0]);ZB[1]=Math.min(ZB[1],s[1]);ZB[2]=Math.max(ZB[2],s[0]);ZB[3]=Math.max(ZB[3],s[1])}));
+/* UN SOLO NOMBRE POR ZONA: cada zona tiene una lista fija de sitios posibles para su nombre,
+   ordenados del más céntrico (más lejos de los bordes) al menos. En el mapa solo se escribe UN nombre
+   por zona: el del sitio más céntrico que se vea en pantalla. Los sitios son siempre los mismos. */
+function inZone(px,py,L){let c=false;for(const s of L){if((s[1]>py)!==(s[3]>py)&&px<s[0]+(py-s[1])*(s[2]-s[0])/(s[3]-s[1]))c=!c}return c}
+function edgeD(px,py,L){let m=1e18;for(const s of L){const e=dseg(px,py,s);if(e<m)m=e}return m}
+ZL=ZN.map((z,k)=>{
+ const L=ZS[k],b=[1e9,1e9,-1e9,-1e9],C=[];L.forEach(s=>{b[0]=Math.min(b[0],s[0]);b[1]=Math.min(b[1],s[1]);b[2]=Math.max(b[2],s[0]);b[3]=Math.max(b[3],s[1])});
+ const add=(x,y)=>{if(inZone(x,y,L))C.push({x:Math.round(x),y:Math.round(y),s:edgeD(x,y,L)})};
+ for(let i=0;i<z[3].length;i+=2)add(z[3][i],z[3][i+1]);
+ const N=40,dx=(b[2]-b[0])/N,dy=(b[3]-b[1])/N;
+ for(let i=0;i<=N;i++)for(let j=0;j<=N;j++)add(b[0]+(i+(j%2)*.5)*dx,b[1]+j*dy);
+ C.sort((p,q)=>q.s-p.s||p.x-q.x||p.y-q.y);
+ return {n:z[0],c:C,s:C.length?C[0].s:0};
+});
+ZL.sort((a,b)=>b.s-a.s);
+ZP=ZN.map(z=>'<path d="'+z[2]+'" style="fill:var(--p'+z[1]+');stroke:currentColor;stroke-opacity:.55" fill-opacity=".42" fill-rule="evenodd" stroke-width="1" vector-effect="non-scaling-stroke"/>').join("");
+$("filt").innerHTML='<option value="all">Todas las calles</option>'+P.map((n,i)=>'<option value="'+i+'">Actúa '+n+'</option>').join("")+'<option value="fails">Solo mis fallos</option>';
+}
+/* ¿El segmento corta el rectángulo? (para no escribir nombres encima de la calle) */
+function segBox(q,x0,y0,x1,y1){let t0=0,t1=1;const dx=q[2]-q[0],dy=q[3]-q[1];
+ for(const [p,r] of [[-dx,q[0]-x0],[dx,x1-q[0]],[-dy,q[1]-y0],[dy,y1-q[1]]]){if(p===0){if(r<0)return false}else{const t=r/p;if(p<0){if(t>t1)return false;if(t>t0)t0=t}else{if(t<t0)return false;if(t<t1)t1=t}}}
+ return true}
+function openSegs(d){const out=[],re=/M(-?\d+) (-?\d+)l?([^M]*)/g;let m;
+ while((m=re.exec(d))){let x=+m[1],y=+m[2];const q=m[3].trim()?m[3].trim().split(/\s+/).map(Number):[];
+  if(!q.length)out.push([x,y,x,y]);for(let i=0;i+1<q.length;i+=2){const nx=x+q[i],ny=y+q[i+1];out.push([x,y,nx,ny]);x=nx;y=ny}}
+ return out}
+function renderLabels(s,vb){
+ const g=s.querySelector(".lbls"),r=s.getBoundingClientRect();if(!g||!r.width)return;
+ const k=vb[2]/r.width,fs=13*k,pad=6*k,sel=[];
+ ZL.forEach(z=>{
+  const w=z.n.length*fs*.6;
+  for(const a of z.c){
+   if(a.s<w*.35)break; /* el nombre ya no cabe dentro de la zona */
+   const c={x0:a.x-w/2,x1:a.x+w/2,y0:a.y-fs*.8,y1:a.y+fs*.25,a:a,n:z.n};
+   if(c.x0<vb[0]+pad||c.x1>vb[0]+vb[2]-pad||c.y0<vb[1]+pad||c.y1>vb[1]+vb[3]-pad)continue; /* fuera de la vista */
+   if(c.x1>vb[0]+vb[2]-58*k&&c.y0<vb[1]+150*k)continue; /* no tapar los botones de zoom */
+   const m=10*k;if(s._st&&s._st.some(q=>segBox(q,c.x0-m,c.y0-m,c.x1+m,c.y1+m)))continue; /* no tapar la calle */
+   if(sel.some(b=>c.x0<b.x1+6*k&&c.x1>b.x0-6*k&&c.y0<b.y1+4*k&&c.y1>b.y0-4*k))continue; /* no montar un nombre encima de otro */
+   sel.push(c);break; /* solo UN nombre por zona */
+  }
+ });
+ g.setAttribute("font-size",fs.toFixed(2));g.setAttribute("stroke-width",(fs/4).toFixed(2));
+ g.innerHTML=sel.map(c=>'<text x="'+c.a.x+'" y="'+c.a.y+'">'+esc(c.n)+'</text>').join("");
+}
+function nearV(d,cx,cy){
+ let best=null,bd=1e18,m;const re=/M(-?\d+) (-?\d+)l?([^M]*)/g;
+ const seg=(ax,ay,bx,by)=>{const dx=bx-ax,dy=by-ay,L=dx*dx+dy*dy,u=L?Math.max(0,Math.min(1,((cx-ax)*dx+(cy-ay)*dy)/L)):0,x=ax+u*dx,y=ay+u*dy,e=(x-cx)*(x-cx)+(y-cy)*(y-cy);if(e<bd){bd=e;best=[Math.round(x),Math.round(y)]}};
+ while((m=re.exec(d))){let x=+m[1],y=+m[2];
+  const q=m[3].trim()?m[3].trim().split(/\s+/).map(Number):[];
+  if(!q.length)seg(x,y,x,y);
+  for(let i=0;i+1<q.length;i+=2){const nx=x+q[i],ny=y+q[i+1];seg(x,y,nx,ny);x=nx;y=ny}}
+ return best||[cx,cy];
+}
+function zoomVB(vb,v0,f,px,py){
+ const nw=Math.min(Math.max(vb[2]*f,v0[2]/25),v0[2]*10),k=nw/vb[2];
+ return [px-(px-vb[0])*k,py-(py-vb[1])*k,nw,vb[3]*k];
+}
+function attachMap(box){
+ const s=box.querySelector("svg");if(!s)return;
+ const v0=s.getAttribute("viewBox").split(" ").map(Number);let vb=v0.slice(),raf=0;
+ const c0=[v0[0]+v0[2]/2,v0[1]+v0[3]/2],B=[Math.min(ZB[0],c0[0]),Math.min(ZB[1],c0[1]),Math.max(ZB[2],c0[0]),Math.max(ZB[3],c0[1])];
+ const draw=()=>{raf=0;renderLabels(s,vb);const c=s.querySelector(".pt"),r=s.getBoundingClientRect();if(c&&r.width)c.setAttribute("r",(8*vb[2]/r.width).toFixed(2))};
+ const apply=()=>{
+  /* no dejar que el mapa se escape fuera de las zonas */
+  const cx=Math.min(Math.max(vb[0]+vb[2]/2,B[0]),B[2]),cy=Math.min(Math.max(vb[1]+vb[3]/2,B[1]),B[3]);vb[0]=cx-vb[2]/2;vb[1]=cy-vb[3]/2;
+  s.setAttribute("viewBox",vb.map(v=>Math.round(v*100)/100).join(" "));
+  if(!raf)raf=requestAnimationFrame(draw);
+ };
+ const toXY=(cx,cy)=>{const r=s.getBoundingClientRect();return [vb[0]+(cx-r.left)/r.width*vb[2],vb[1]+(cy-r.top)/r.height*vb[3]]};
+ const zc=f=>{vb=zoomVB(vb,v0,f,vb[0]+vb[2]/2,vb[1]+vb[3]/2);apply()};
+ box.querySelectorAll(".zbar button").forEach(b=>b.onclick=()=>{const z=b.dataset.z;if(z==="in")zc(1/1.5);else if(z==="out")zc(1.5);else{vb=v0.slice();apply()}});
+ const ptr={};
+ s.addEventListener("pointerdown",e=>{ptr[e.pointerId]=[e.clientX,e.clientY];try{s.setPointerCapture(e.pointerId)}catch(_){}});
+ s.addEventListener("pointermove",e=>{
+  const prev=ptr[e.pointerId];if(!prev)return;const ids=Object.keys(ptr);
+  if(ids.length===1){const r=s.getBoundingClientRect();vb[0]-=(e.clientX-prev[0])/r.width*vb[2];vb[1]-=(e.clientY-prev[1])/r.height*vb[3];ptr[e.pointerId]=[e.clientX,e.clientY];apply()}
+  else if(ids.length===2){const o=ptr[ids.find(i=>+i!==e.pointerId)];const d0=Math.hypot(prev[0]-o[0],prev[1]-o[1]);
+   ptr[e.pointerId]=[e.clientX,e.clientY];const d1=Math.hypot(e.clientX-o[0],e.clientY-o[1]);
+   if(d0>0&&d1>0){const m=toXY((e.clientX+o[0])/2,(e.clientY+o[1])/2);vb=zoomVB(vb,v0,d0/d1,m[0],m[1]);apply()}}
+ });
+ const end=e=>{delete ptr[e.pointerId]};s.addEventListener("pointerup",end);s.addEventListener("pointercancel",end);
+ s.addEventListener("wheel",e=>{e.preventDefault();const m=toXY(e.clientX,e.clientY);vb=zoomVB(vb,v0,e.deltaY>0?1.2:1/1.2,m[0],m[1]);apply()},{passive:false});
+ if(box._ro)box._ro.disconnect();
+ if(window.ResizeObserver){box._ro=new ResizeObserver(()=>{if(!raf)raf=requestAnimationFrame(draw)});box._ro.observe(s)}
+ draw();
+}
+const kind=d=>G[d[3]]?(G[d[3]].length===3?"Lugar":"Calle"):(/^(calle|carrer|avinguda|avenida|cam[ií]|carretera|pla[cç]a|passeig|passage|passatge|senda|travessera|entrador|gran via|carrera)\b/i.test(d[0])?"Calle":"Lugar");
+function drawMap(box,d){
+ if(box._lm){box._lm.remove();box._lm=null}
+ const g=G[d[3]];
+ box.className="map";
+ if(!g){const q=encodeURIComponent((d[5]||d[0])+", Valencia, España");
+  box.innerHTML='<div class="cap">Este sitio todavía no está dibujado en el mapa de zonas.</div><a class="maplink" href="https://www.google.com/maps/search/?api=1&query='+q+'" target="_blank" rel="noopener">📍 Buscar en Google Maps ↗</a><a class="maplink" href="'+MYMAPS+'" target="_blank" rel="noopener">Ver zonas en My Maps ↗</a>';return}
+ const pt=g.length===3;
+ let cx,cy,size;
+ if(pt){cx=g[0];cy=g[1];size=900}
+ else{const w=g[2]-g[0],h=g[3]-g[1];cx=(g[0]+g[2])/2;cy=(g[1]+g[3])/2;size=Math.max(w,h)*1.25+300;if(size<900)size=900}
+ const vx=Math.round(cx-size/2),vy=Math.round(cy-size/2);
+ const pv=pt?[g[0],g[1]]:nearV(g[4],cx,cy),pl=utm2ll(X0+pv[0],Y0-pv[1]);
+ /* Botones de debajo: zonas en My Maps (centro de la calle) y punto en Google Maps */
+ const zll=utm2ll(X0+cx,Y0-cy),zz=size<=1000?17:size<=2500?16:size<=5000?15:14;
+ const zurl=MYMAPS+"&ll="+zll[0].toFixed(6)+","+zll[1].toFixed(6)+"&z="+zz;
+ const pin="https://www.google.com/maps/search/?api=1&query="+pl[0].toFixed(6)+","+pl[1].toFixed(6);
+ const st=pt?'<circle class="pt" cx="'+g[0]+'" cy="'+g[1]+'" r="8" fill="#111" stroke="#fff" stroke-width="3" vector-effect="non-scaling-stroke"/>'
+  :'<path d="'+g[4]+'" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/><path d="'+g[4]+'" fill="none" stroke="#111" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>';
+ /* Igual que en tu versión: al responder se genera el mapa con la calle marcada y debajo los dos botones */
+ box.innerHTML='<div class="mapwrap"><svg viewBox="'+vx+' '+vy+' '+size+' '+size+'" style="width:100%;height:auto;display:block;color:var(--ink);touch-action:none" role="img" aria-label="Mapa de zonas">'+ZP
+  +'<g class="lbls" text-anchor="middle" font-weight="700" style="fill:currentColor;stroke:var(--card);paint-order:stroke;stroke-linejoin:round;pointer-events:none"></g>'+st
+  +'</svg><div class="zbar"><button type="button" data-z="in" aria-label="Acercar">+</button><button type="button" data-z="out" aria-label="Alejar">−</button><button type="button" data-z="0" aria-label="Volver a la vista inicial">⟲</button></div></div>'
+  +'<div class="cap">En negro, '+(pt?"el lugar":"la calle")+'. Color = parque que actúa; etiqueta = actúa/coopera. Arrastra para mover; pellizca o usa + y − para el zoom.</div>'
+  +'<div class="cap lg">'+PK.map((n,i)=>'<span><i style="background:var(--p'+i+')"></i>'+(d[1].includes(i)?"<b>"+n+"</b>":n)+'</span>').join("")+'</div>'
+  +'<div class="rwrap hide"><div class="rmap"></div><div class="zbar"><button type="button" data-r="in" aria-label="Acercar">+</button><button type="button" data-r="out" aria-label="Alejar">−</button><button type="button" data-r="0" aria-label="Volver a centrar">⟲</button></div></div>'
+  +'<div><button type="button" class="maplink mapsw">🗺️ Ver en el mapa real</button></div>'
+  +'<a class="maplink" href="'+zurl+'" target="_blank" rel="noopener">Ver zonas en My Maps ↗</a>'
+  +'<a class="maplink" href="'+pin+'" target="_blank" rel="noopener">📍 Marcar punto en Google Maps ↗</a>';
+ const sv=box.querySelector("svg");sv._st=pt?[[g[0],g[1],g[0],g[1]]]:openSegs(g[4]);
+ attachMap(box);
+ /* Botón de arriba: cambia entre el dibujo y un mapa real con las zonas de colores y la calle marcada */
+ const sw=box.querySelector(".mapsw"),rw=box.querySelector(".rwrap"),rm=box.querySelector(".rmap"),dw=box.querySelector(".mapwrap");
+ sw.onclick=()=>{
+  const real=rw.classList.contains("hide");
+  rw.classList.toggle("hide",!real);dw.classList.toggle("hide",real);
+  sw.textContent=real?"✏️ Volver al dibujo":"🗺️ Ver en el mapa real";
+  const cp=box.querySelector(".mapwrap+.cap, .rwrap+.cap");if(cp){if(!cp._t)cp._t=cp.textContent;cp.textContent=real?"La chincheta roja señala "+(pt?"el lugar":"la calle")+". Color = parque que actúa. Arrastra para mover; + y − para el zoom; ⟲ para volver a centrar.":cp._t}
+  if(real)showReal(box,rm,g,pt,pl);
+ };
+ rw.querySelectorAll(".zbar button").forEach(b=>b.onclick=()=>{const m=box._lm;if(!m)return;const z=b.dataset.r;if(z==="in")m.zoomIn();else if(z==="out")m.zoomOut();else m.setView(m._home[0],m._home[1])});
+
+}
+/* ---- Mapa real (se carga solo al pulsar el botón) ---- */
+let leafP=null;
+function loadLeaflet(){
+ if(window.L&&window.L.map)return Promise.resolve();if(leafP)return leafP;
+ leafP=new Promise((ok,ko)=>{
+  const c=document.createElement("link");c.rel="stylesheet";c.href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";document.head.appendChild(c);
+  const s=document.createElement("script");s.src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";s.onload=ok;s.onerror=()=>{leafP=null;ko()};document.head.appendChild(s);
+ });
+ return leafP;
+}
+const toLL=(x,y)=>utm2ll(X0+x,Y0-y);
+function pathLL(d){ /* trazado del dibujo -> lista de líneas en latitud/longitud */
+ const out=[],re=/M(-?\d+) (-?\d+)\s*l?([^Mz]*)/gi;let m;
+ while((m=re.exec(d))){let x=+m[1],y=+m[2];const q=m[3].trim()?m[3].trim().split(/\s+/).map(Number):[];const r=[toLL(x,y)];
+  for(let i=0;i+1<q.length;i+=2){x+=q[i];y+=q[i+1];r.push(toLL(x,y))}out.push(r)}
+ return out}
+let ZLL=null;
+function showReal(box,rm,g,pt,pl){
+ if(box._lm){setTimeout(()=>box._lm.invalidateSize(),0);return}
+ rm.innerHTML='<div class="msg">Cargando mapa…</div>';
+ loadLeaflet().then(()=>{
+  if(!rm.isConnected||box._lm)return;
+  rm.innerHTML="";
+  const cs=getComputedStyle(document.documentElement);
+  if(!ZLL)ZLL=ZN.map(z=>pathLL(z[2]));
+  const map=L.map(rm,{zoomControl:false,attributionControl:true});box._lm=map;
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:'&copy; OpenStreetMap'}).addTo(map);
+  ZN.forEach((z,k)=>{const col=cs.getPropertyValue("--p"+z[1]).trim()||"#888";
+   L.polygon(ZLL[k],{color:"#333",weight:1,opacity:.6,fillColor:col,fillOpacity:.35,interactive:false}).addTo(map)});
+  ZL.forEach(z=>{const a=z.c&&z.c[0];if(!a)return;
+   L.tooltip({permanent:true,direction:"center",className:"zlab",interactive:false}).setLatLng(toLL(a.x,a.y)).setContent(esc(z.n)).addTo(map)});
+
+  /* Solo una chincheta: la punta señala la calle y no tapa su nombre */
+  const p=pt?toLL(g[0],g[1]):pl;
+  const pin=L.divIcon({className:"rpin",iconSize:[28,38],iconAnchor:[14,37],html:'<svg width="28" height="38" viewBox="0 0 28 38"><path d="M14 37C14 37 2 22 2 13.5a12 12 0 0 1 24 0C26 22 14 37 14 37z" fill="#e11d48" stroke="#fff" stroke-width="2.5"/><circle cx="14" cy="13.5" r="4.5" fill="#fff"/></svg>'});
+  L.marker(p,{icon:pin,interactive:false,keyboard:false}).addTo(map);
+  const b=pt?L.latLngBounds([p,p]):L.latLngBounds([].concat(...pathLL(g[4])));
+  map.fitBounds(b,{padding:[50,50],maxZoom:16});
+  map._home=[map.getCenter(),map.getZoom()];
+ }).catch(()=>{rm.innerHTML='<div class="msg">No se ha podido cargar el mapa real. Comprueba la conexión a internet y vuelve a pulsar el botón.</div>'});
+}
+function chips(){
+ $("cOk").textContent=pl(sess.ok,"acierto","aciertos");
+ $("cKo").textContent=pl(sess.ko,"fallo","fallos");
+ $("cSt").textContent="🔥 Racha "+sess.st;
+ $("cSt").title="Aciertos seguidos · tu mejor racha: "+bestSt;
+}
+function notes(el,d){
+ const nl=[];if(d[5])nl.push("📍 "+d[5]);if(d[4])nl.push("ℹ️ "+d[4]);
+ if(nl.length){el.textContent=nl.join("\n");el.className="note"}else el.className="note hide";
+}
+function check(skip){
+ done=true;
+ const okA=!skip&&(aopts?same(aopts[selA],cur[1]):selA===cur[1][0]);
+ const okC=!skip&&selC.length===1&&(copts?same(copts[selC[0]],cur[2]):selC[0]===cur[2][0]);
+ const ok=okA&&okC;
+ const r=S[cur[3]]||[0,0]; r[ok?0:1]++; S[cur[3]]=r;
+ sess[ok?"ok":"ko"]++; sess.st=ok?sess.st+1:0;
+ if(sess.st>bestSt){bestSt=sess.st;try{localStorage.setItem("zb_best",bestSt)}catch(_){}}
+ enqueue({t:"ans",id:cur[3],name:cur[0],ok:ok});
+ [["oa",[selA],i=>aopts?same(aopts[i],cur[1]):cur[1].includes(i)],["oc",selC,i=>copts?same(copts[i],cur[2]):cur[2].includes(i)]].forEach(([id,s,g])=>[...$(id).children].forEach(b=>{
+  const i=+b.dataset.i;b.disabled=true;b.classList.remove("sel");
+  if(g(i))b.classList.add("good");else if(s.includes(i))b.classList.add("bad")}));
+ const res=$("res");res.className="res "+(ok?"ok":"ko");
+ res.innerHTML=ok?"✓ Correcto"+(sess.st>=3?" · 🔥 "+sess.st+" seguidas":""):(skip?"Respuesta: ":"✗ Incorrecto. Es: ")+"actúa "+pks(cur[1])+" · coopera "+pks(cur[2]);
+ notes($("note"),cur);
+ drawMap($("map"),cur);
+ chips();
+ $("skip").classList.add("hide");
+ $("next").classList.remove("hide");$("next").focus({preventScroll:true});
+ res.scrollIntoView({block:"nearest",behavior:"smooth"});
+}
+function next(){
+ cur=pick();recent.push(cur[3]);if(recent.length>8)recent.shift();
+ selA=null;selC=[];done=false;
+ mkopts();
+ $("kind").textContent=kind(cur);
+ $("street").textContent=cur[0];
+ buttons($("oa"),"a");buttons($("oc"),"c");
+ $("res").className="res hide";$("note").className="note hide";$("map").className="map hide";$("map").innerHTML="";
+ $("next").classList.add("hide");$("skip").classList.remove("hide");
+}
+function pct(o,k){return o+k?Math.round(100*o/(o+k)):0}
+function tbl(rows,cols){
+ if(!rows.length) return '<div class="mut">Todavía no hay datos suficientes.</div>';
+ return "<table><tr>"+cols.map(c=>"<th>"+c+"</th>").join("")+"</tr>"+rows.map(r=>"<tr>"+r.map(c=>"<td>"+c+"</td>").join("")+"</tr>").join("")+"</table>";
+}
+function stats(){
+ const ent=Object.entries(S).filter(([id])=>BYID[id]);
+ let ok=0,ko=0;ent.forEach(([,r])=>{ok+=r[0];ko+=r[1]});
+ $("sum").innerHTML='<div class="stat"><b>'+ent.length+" / "+D.length+'</b><span class="mut">calles vistas</span></div>'+
+  '<div class="stat"><b>'+ok+'</b><span class="mut">aciertos</span></div>'+
+  '<div class="stat"><b>'+pct(ok,ko)+'%</b><span class="mut">precisión</span></div>'+
+  '<div class="stat"><b>🔥 '+bestSt+'</b><span class="mut">mejor racha</span></div>';
+ const bp=P.map((n,i)=>{let o=0,k=0,seen=0,tot=0;D.forEach(d=>{if(!d[1].includes(i))return;tot++;const r=S[d[3]];if(r){seen++;o+=r[0];k+=r[1]}});
+  return '<div style="margin-bottom:10px"><div class="row"><b>'+pk(i)+'</b><span class="mut">'+seen+"/"+tot+" vistas · "+pct(o,k)+'% acierto</span></div><div class="bar"><i style="width:'+pct(o,k)+'%"></i></div></div>'}).join("");
+ $("bypark").innerHTML=bp;
+ const label=d=>esc(d[0])+'<div class="mut">'+d[1].map(i=>P[i]).join("/")+" · "+d[2].map(i=>P[i]).join("/")+"</div>";
+ const worst=ent.filter(([,r])=>r[1]>0).sort((a,b)=>b[1][1]-a[1][1]||pct(a[1][0],a[1][1])-pct(b[1][0],b[1][1])).slice(0,15)
+  .map(([id,r])=>[label(BYID[id]),r[1]+" fallos / "+(r[0]+r[1]),pct(r[0],r[1])+"%"]);
+ $("worst").innerHTML=tbl(worst,["Calle (respuesta correcta)","Fallos","Acierto"]);
+ $("train").classList.toggle("hide",!worst.length);
+ const best=ent.filter(([,r])=>r[0]>=2&&pct(r[0],r[1])>=80).sort((a,b)=>b[1][0]-a[1][0]||b[1][0]/(b[1][0]+b[1][1])-a[1][0]/(a[1][0]+a[1][1])).slice(0,15)
+  .map(([id,r])=>[esc(BYID[id][0]),r[0]+" aciertos / "+(r[0]+r[1]),pct(r[0],r[1])+"%"]);
+ $("best").innerHTML=tbl(best,["Calle","Aciertos","Acierto"]);
+}
+/* Buscador de calles y lugares (no importan tildes ni mayúsculas) */
+const norm=s=>String(s).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+let findT=null;
+function find(){
+ const q=norm($("q").value).trim(),t=q.split(/\s+/).filter(Boolean);
+ if(!t.length){$("qr").innerHTML="";$("qn").textContent=D.length+" calles y lugares. Escribe parte del nombre.";return}
+ const out=[];for(let i=0;i<D.length;i++)if(t.every(w=>IDX[i].includes(w)))out.push(D[i]);
+ out.sort((a,b)=>(norm(b[0]).startsWith(q)?1:0)-(norm(a[0]).startsWith(q)?1:0)||a[0].localeCompare(b[0],"es"));
+ $("qn").textContent=out.length?pl(out.length,"resultado","resultados")+(out.length>40?" · se muestran 40":""):"No hay resultados";
+ $("qr").innerHTML=out.slice(0,40).map(d=>'<button type="button" class="hit" data-id="'+esc(d[3])+'"><b>'+esc(d[0])+'</b><span class="mut">Actúa '+pks(d[1])+' · Coopera '+pks(d[2])+'</span></button>').join("");
+}
+function show(d){
+ $("fd").classList.remove("hide");
+ $("fkind").textContent=kind(d);$("fname").textContent=d[0];
+ $("fans").innerHTML='<div class="ans"><div><div class="lab">Actúa</div>'+pks(d[1])+'</div><div><div class="lab">Coopera</div>'+pks(d[2])+'</div></div>';
+ const r=S[d[3]];$("fhist").textContent=r?"Tu historial: "+pl(r[0],"acierto","aciertos")+" · "+pl(r[1],"fallo","fallos"):"Todavía no te ha salido.";
+ notes($("fnote"),d);
+ drawMap($("fmap"),d);
+ $("fd").scrollIntoView({block:"start",behavior:"smooth"});
+}
+$("q").oninput=()=>{clearTimeout(findT);findT=setTimeout(find,120)};
+$("qr").onclick=e=>{const b=e.target.closest(".hit");if(b&&BYID[b.dataset.id])show(BYID[b.dataset.id])};
+function tab(n){
+ $("play").classList.toggle("hide",n!==1);$("stats").classList.toggle("hide",n!==2);$("find").classList.toggle("hide",n!==3);$("exam").classList.toggle("hide",n!==4);
+ [1,2,3,4].forEach(i=>$("t"+i).setAttribute("aria-selected",n===i));
+ if(n===4)xview();
+ if(n===2)stats();
+ if(n===3){find();$("q").focus({preventScroll:true})}
+}
+$("t1").onclick=()=>tab(1);$("t4").onclick=()=>tab(4);$("t2").onclick=()=>tab(2);$("t3").onclick=()=>tab(3);
+$("next").onclick=next;
+$("skip").onclick=()=>{if(!done&&cur)check(true)};
+/* Atajo: Intro para pasar a la siguiente */
+document.addEventListener("keydown",e=>{
+ if(e.key!=="Enter"||e.target.closest("input,select,textarea"))return;
+ if(done&&!$("play").classList.contains("hide")&&document.activeElement!==$("next")){e.preventDefault();next()}
+});
+$("train").onclick=()=>{filt="fails";$("filt").value="fails";recent=[];tab(1);next()};
+$("filt").onchange=e=>{filt=e.target.value;recent=[];next()};
+$("reset").onclick=()=>{
+ if(!armed){armed=true;$("reset").textContent="Pulsa otra vez para confirmar";setTimeout(()=>{armed=false;$("reset").textContent="Borrar mi progreso"},4000);return}
+ S={};armed=false;$("reset").textContent="Borrar mi progreso";queue=queue.filter((j,k)=>(sending&&k===0)||j.t!=="ans");enqueue({t:"reset"});stats();$("rmsg").textContent="Progreso borrado";
+};
+/* ===== Modo examen: nota sobre 10, cada acierto suma y cada fallo resta lo mismo (10/nº de preguntas), en blanco 0, nota mínima 0 ===== */
+const XMODES={both:"Actúa y coopera",a:"Solo quién actúa",c:"Solo quién coopera"};
+let xcfg={mode:"both",n:20};
+try{const c=JSON.parse(localStorage.getItem("zb_xcfg")||"null");if(c&&XMODES[c.mode]&&[10,20,30,50].includes(c.n))xcfg=c}catch(_){}
+let X=null; /* {q:[{d,a,c,sa,sc}],i,done,mode} */
+/* Nota sobre 10 a partir de aciertos y fallos (el blanco no cuenta); nunca baja de 0 */
+function xscore(ok,ko,n){return Math.max(0,Math.min(10,(ok-ko)*10/n))}
+const num=v=>{const r=Math.round(v*100)/100;return String(r).replace(".",",")};
+const fmtS=v=>(v>0?"+":v<0?"−":"")+num(Math.abs(v));
+/* Historial: copia en este navegador (zb_exams2) + pestaña "Exámenes" de la hoja. s=1 cuando ya está guardado en la hoja */
+function xhistGet(){try{return JSON.parse(localStorage.getItem("zb_exams2")||"[]")}catch(_){return []}}
+function xhistPut(h){try{localStorage.setItem("zb_exams2",JSON.stringify(h.slice(-300)))}catch(_){}}
+function xhistAdd(r){r.s=0;const h=xhistGet();h.push(r);xhistPut(h);enqueue({t:"exam",r})}
+function xhistMark(t){const h=xhistGet();h.forEach(r=>{if(r.t===t)r.s=1});xhistPut(h)}
+const xsame=(a,b)=>Math.abs(a.t-b.t)<2000&&a.n===b.n&&a.ok===b.ok&&a.ko===b.ko;
+function xmodeKey(m){if(XMODES[m])return m;const k=Object.keys(XMODES).find(k=>XMODES[k]===m);return k||m}
+function xpending(){return queue.filter(j=>j.t==="exam").length}
+function xsyncMsg(){
+ const el=$("xsync");if(!el)return;
+ const n=xpending();el.textContent=n?pl(n,"examen pendiente","exámenes pendientes")+" de guardar en la base de datos":"Guardado en la base de datos";
+}
+/* Al abrir: la base de datos manda; los exámenes de este navegador que aún no llegaron se vuelven a enviar */
+async function xload(){
+ const {data,error}=await sb.from("exams").select("t,mode,n,ok,ko,b,g").order("t");
+ if(error)return;
+ const srv=(data||[]).map(r=>({t:+r.t,m:xmodeKey(r.mode),n:+r.n,ok:+r.ok,ko:+r.ko,b:+r.b,g:+r.g,s:1}));
+ const queued=queue.filter(j=>j.t==="exam").map(j=>j.r);
+ const loc=xhistGet().filter(r=>!r.s&&!srv.some(x=>xsame(x,r)));
+ loc.forEach(r=>{if(!queued.some(x=>x.t===r.t))enqueue({t:"exam",r})});
+ xhistPut(srv.concat(loc).sort((a,b)=>a.t-b.t));
+ if(!X)xsetup();
+}
+function xoptsFor(d){return {a:d[1].length>1?pairs(d[1],[]):null,c:d[2].length>1?pairs(d[2],d[1]):null}}
+function xseg(id,val){[...$(id).children].forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===String(val)))}
+function xsetup(){
+ xseg("xmode",xcfg.mode);xseg("xcount",xcfg.n);
+ const v=10/xcfg.n;$("xokv").textContent=fmtS(v);$("xkov").textContent=fmtS(-v);
+ $("xrule2").textContent=xcfg.mode==="both"?"Solo es acierto si eliges bien los dos parques.":xcfg.mode==="a"?"Solo eliges el parque que actúa.":"Solo eliges el parque que coopera.";
+ const h=xhistGet();
+ if(h.length){const best=Math.max(...h.map(r=>r.g)),last=h[h.length-1];
+  $("xhist").textContent="Último examen: "+num(last.g)+" / 10 · Mejor nota: "+num(best)+" / 10 · "+pl(h.length,"examen hecho","exámenes hechos");}
+ else $("xhist").textContent="";
+ const fd=t=>{const d=new Date(t);return d.toLocaleDateString("es-ES",{day:"2-digit",month:"2-digit",year:"numeric"})+" "+d.toLocaleTimeString("es-ES",{hour:"2-digit",minute:"2-digit"})};
+ $("xhcard").classList.toggle("hide",!h.length);
+ $("xhtab").innerHTML=tbl(h.slice().reverse().map(r=>[fd(r.t),XMODES[r.m]||r.m||"—",r.n,'<span style="color:var(--ok)">'+r.ok+'</span> / <span style="color:var(--ko)">'+r.ko+"</span> / "+r.b,'<b style="color:var(--'+(r.g>=5?"ok":"ko")+')">'+num(r.g)+"</b> / 10"]),["Fecha","Modo","Preguntas","A / F / B","Nota"]);
+ xsyncMsg();
+}
+$("xmode").onclick=e=>{const b=e.target.closest("button");if(!b)return;xcfg.mode=b.dataset.v;try{localStorage.setItem("zb_xcfg",JSON.stringify(xcfg))}catch(_){}xsetup()};
+$("xcount").onclick=e=>{const b=e.target.closest("button");if(!b)return;xcfg.n=+b.dataset.v;try{localStorage.setItem("zb_xcfg",JSON.stringify(xcfg))}catch(_){}xsetup()};
+function xstart(){
+ const p=D.slice();
+ for(let i=p.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[p[i],p[j]]=[p[j],p[i]]}
+ X={mode:xcfg.mode,q:p.slice(0,Math.min(xcfg.n,p.length)).map(d=>{const o=xoptsFor(d);return {d,a:o.a,c:o.c,sa:null,sc:null}}),i:0,done:false};
+ xview();xshow();
+}
+function xview(){
+ const run=X&&!X.done,end=X&&X.done;
+ $("xstart").classList.toggle("hide",!!X);$("xhcard").classList.toggle("hide",!!X||!xhistGet().length);$("xrun").classList.toggle("hide",!run);$("xend").classList.toggle("hide",!end);
+ if(!X)xsetup();
+}
+const askA=()=>X.mode!=="c",askC=()=>X.mode!=="a";
+const xfull=q=>(!askA()||q.sa!==null)&&(!askC()||q.sc!==null);
+const xany=q=>q.sa!==null||q.sc!==null;
+function xbtns(el,q,which){
+ el.innerHTML="";
+ const o=which==="a"?q.a:q.c,s=which==="a"?q.sa:q.sc;
+ (o||P.map((_,i)=>[i])).forEach((x,i)=>{
+  const b=document.createElement("button");b.type="button";b.className="opt"+(s===i?" sel":"");
+  b.innerHTML=x.map(j=>'<i class="dot" style="background:var(--p'+j+')"></i>').join("")+"<span>"+x.map(j=>P[j]).join("/")+"</span>";
+  b.onclick=()=>{if(which==="a")q.sa=(q.sa===i?null:i);else q.sc=(q.sc===i?null:i);xshow()};
+  el.appendChild(b)});
+}
+function xshow(){
+ const q=X.q[X.i],n=X.q.length,ans=X.q.filter(xfull).length,last=X.i===n-1;
+ $("xnum").textContent=(X.i+1)+" / "+n;
+ $("xbar").style.width=(100*ans/n)+"%";
+ $("xans").textContent=ans+" respondidas";
+ $("xkind").textContent=kind(q.d);$("xstreet").textContent=q.d[0];
+ $("xba").classList.toggle("hide",!askA());$("xbc").classList.toggle("hide",!askC());
+ if(askA())xbtns($("xa"),q,"a");if(askC())xbtns($("xc"),q,"c");
+ $("xprev").disabled=X.i===0;$("xprev").style.visibility=X.i===0?"hidden":"visible";
+ $("xclr").classList.toggle("hide",!xany(q));
+ $("xnext").textContent=last?"Entregar examen":(xfull(q)?"Siguiente →":"Saltar →");
+ $("xmsg").textContent=xany(q)&&!xfull(q)?"Marca las dos opciones o la pregunta quedará en blanco.":"";
+ $("xdots").innerHTML=X.q.map((z,k)=>'<button type="button" data-k="'+k+'" class="'+(k===X.i?"cur":xfull(z)?"on":"")+'" aria-label="Pregunta '+(k+1)+'">'+(k+1)+'</button>').join("");
+}
+function xgrade(q){
+ if(!xfull(q))return "bl";
+ const okA=!askA()||(q.a?same(q.a[q.sa],q.d[1]):q.sa===q.d[1][0]);
+ const okC=!askC()||(q.c?same(q.c[q.sc],q.d[2]):q.sc===q.d[2][0]);
+ return okA&&okC?"ok":"ko";
+}
+let xarmed=false,xarmT=null;
+function xfinish(){
+ const bl=X.q.filter(q=>!xfull(q)).length;
+ if(bl&&!xarmed){xarmed=true;$("xnext").textContent="Entregar con "+pl(bl,"en blanco","en blanco");$("xmsg").textContent="Te "+(bl===1?"queda 1 pregunta":"quedan "+bl+" preguntas")+" sin responder. Pulsa otra vez para entregar.";
+  clearTimeout(xarmT);xarmT=setTimeout(()=>{xarmed=false;if(X&&!X.done)xshow()},5000);return}
+ xarmed=false;clearTimeout(xarmT);
+ X.done=true;
+ const n=X.q.length,v=10/n;
+ let ok=0,ko=0,b=0;
+ X.q.forEach(q=>{q.r=xgrade(q);if(q.r==="ok")ok++;else if(q.r==="ko")ko++;else b++;
+  /* Solo el modo "las dos" guarda en el progreso (es lo que mide Jugar); fallo o blanco cuentan como fallo */
+  if(X.mode==="both"){const r=S[q.d[3]]||[0,0];r[q.r==="ok"?0:1]++;S[q.d[3]]=r;enqueue({t:"ans",id:q.d[3],name:q.d[0],ok:q.r==="ok"})}});
+ const g=xscore(ok,ko,n);
+ xhistAdd({g,ok,ko,b,n,m:X.mode,t:Date.now()});
+ $("xendk").textContent="Resultado · "+XMODES[X.mode]+" · "+n+" preguntas";
+ const el=$("xgrade");el.className="grade "+(g>=5?"pos":"neg");
+ el.innerHTML="<b>"+num(g)+" <small>/ 10</small></b><span class=\"mut\">"+(g>=5?"Aprobado":"Suspenso")+(ok-ko<0?" · la nota no baja de 0":"")+"</span>";
+ $("xsum").innerHTML='<div class="stat"><b style="color:var(--ok)">'+ok+'</b><span class="mut">aciertos · '+fmtS(ok*v)+'</span></div>'+
+  '<div class="stat"><b style="color:var(--ko)">'+ko+'</b><span class="mut">fallos · '+fmtS(-ko*v)+'</span></div>'+
+  '<div class="stat"><b>'+b+'</b><span class="mut">en blanco · 0</span></div>';
+ const ansTxt=(o,s)=>s===null?"—":(o?o[s]:[s]).map(i=>P[i]).join("/");
+ const parts=(a,c)=>[askA()?"actúa "+a:"",askC()?"coopera "+c:""].filter(Boolean).join(" · ");
+ $("xrev").innerHTML=X.q.map((q,k)=>{
+  const ic=q.r==="ok"?"✓":q.r==="ko"?"✗":"–",pts=q.r==="ok"?v:q.r==="ko"?-v:0;
+  const yours=q.r==="bl"?"En blanco":"Tu respuesta: "+parts(ansTxt(q.a,q.sa),ansTxt(q.c,q.sc));
+  return '<button type="button" class="hit" data-id="'+esc(q.d[3])+'"><span class="ic '+q.r+'">'+ic+'</span><span><b>'+(k+1)+". "+esc(q.d[0])+'</b>'+
+   '<span class="mut">'+(q.r==="ok"?"":esc(yours)+"<br>")+"Correcta: "+parts(pks(q.d[1]),pks(q.d[2]))+'</span></span><span class="pt '+q.r+'">'+(pts?fmtS(pts):"0")+'</span></button>'}).join("");
+ $("xfix").classList.toggle("hide",!(ko+b)||X.mode!=="both");
+ xview();
+ $("exam").scrollIntoView({block:"start",behavior:"smooth"});
+}
+$("xgo").onclick=xstart;
+$("xagain").onclick=()=>{X=null;xview()};
+$("xprev").onclick=()=>{if(X&&X.i>0){X.i--;xarmed=false;xshow()}};
+$("xnext").onclick=()=>{if(!X||X.done)return;if(X.i<X.q.length-1){X.i++;xarmed=false;xshow();$("xrun").scrollIntoView({block:"nearest",behavior:"smooth"})}else xfinish()};
+$("xclr").onclick=()=>{const q=X&&X.q[X.i];if(q){q.sa=null;q.sc=null;xshow()}};
+$("xdots").onclick=e=>{const b=e.target.closest("button");if(b&&X){X.i=+b.dataset.k;xarmed=false;xshow()}};
+let xhArmed=false;
+$("xhclr").onclick=()=>{
+ if(!xhArmed){xhArmed=true;$("xhclr").textContent="Pulsa otra vez para borrar";setTimeout(()=>{xhArmed=false;$("xhclr").textContent="Borrar historial"},4000);return}
+ xhArmed=false;$("xhclr").textContent="Borrar historial";
+ xhistPut([]);queue=queue.filter((j,k)=>(sending&&k===0)||j.t!=="exam");if(GS)enqueue({t:"xclear"});
+ xsetup();$("xhist").textContent="Historial borrado"+(GS?" (también en la base de datos)":"");
+};
+let xqArmed=false;
+$("xquit").onclick=()=>{
+ if(!xqArmed){xqArmed=true;$("xquit").textContent="Pulsa otra vez para abandonar";setTimeout(()=>{xqArmed=false;$("xquit").textContent="Abandonar examen"},4000);return}
+ xqArmed=false;$("xquit").textContent="Abandonar examen";X=null;xview();
+};
+$("xrev").onclick=e=>{const b=e.target.closest(".hit");if(b&&BYID[b.dataset.id]){tab(3);show(BYID[b.dataset.id])}};
+$("xfix").onclick=()=>{filt="fails";$("filt").value="fails";recent=[];tab(1);next()};
+window.addEventListener("beforeunload",e=>{if(X&&!X.done&&X.q.some(xany)){e.preventDefault();e.returnValue=""}});
+chips();
+/* ===== Acceso: correo + contraseña (Supabase Auth) ===== */
+function showApp(on){$("login").classList.toggle("hide",on);$("app").classList.toggle("hide",!on)}
+async function loadData(){
+ const {data,error}=await sb.storage.from("datos").download("datos.json");
+ if(error||!data)throw error||new Error("sin datos");
+ const o=JSON.parse(await data.text());
+ P=o.P;D=o.D;ZN=o.ZN;G=o.G;buildData();
+}
+async function enter(session){
+ SESSION=session;
+ if(!session){showApp(false);return}
+ showApp(true);
+ if(!started){
+  started=true;$("street").textContent="Cargando datos…";
+  try{await loadData()}catch(_){started=false;$("street").textContent="No se pudieron cargar los datos. Comprueba que datos.json está en el bucket privado «datos» de Supabase.";return}
+  await load();next();
+ }else flush();
+}
+$("lform").onsubmit=async e=>{
+ e.preventDefault();$("lerr").textContent="";$("lgo").disabled=true;
+ const {data,error}=await sb.auth.signInWithPassword({email:$("lmail").value.trim(),password:$("lpass").value});
+ $("lgo").disabled=false;
+ if(error){$("lerr").textContent="Correo o contraseña incorrectos";return}
+ $("lpass").value="";enter(data.session);
+};
+$("logout").onclick=async()=>{await sb.auth.signOut();location.reload()};
+sb.auth.getSession().then(({data})=>enter(data.session));
+</script>
+</body>
+</html>
