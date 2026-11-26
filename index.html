@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Entrenador de zonas de bomberos</title>
+<title>APP Bomberos</title>
 <style>
 :root{--bg:#f4f2ec;--card:#fff;--ink:#1d1d1b;--mut:#6b6a64;--line:#e2dfd6;--acc:#c8321e;--accink:#fff;--ok:#1f7a45;--okbg:#dff3e6;--ko:#b3261e;--kobg:#fbe0dc;--sel:#fde9e4;
  --p0:#ec4899;--p1:#f97316;--p2:#3b82f6;--p3:#22c55e;--p4:#92400e;--shadow:0 1px 2px rgba(0,0,0,.04),0 8px 24px -14px rgba(0,0,0,.25);
@@ -55,6 +55,10 @@ select{font:inherit;font-size:14px;padding:7px 10px;border-radius:999px;border:1
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:14px}
 .stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;text-align:center;box-shadow:var(--shadow)}
 .stat b{display:block;font-size:22px}
+.fhighlight{text-align:left}
+.fhighlight-title{display:block;margin-bottom:8px}
+.fhighlight-item{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;padding:6px 0;border-top:1px solid var(--line);font-size:13px}
+.fhighlight-item b{flex:none;font-size:14px}
 table{width:100%;border-collapse:collapse;font-size:14px}
 td,th{padding:7px 4px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
 th{color:var(--mut);font-weight:600}
@@ -82,6 +86,21 @@ th{color:var(--mut);font-weight:600}
 .zbar button{width:40px;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:700 20px/1 system-ui,sans-serif;cursor:pointer;padding:0;box-shadow:var(--shadow)}
 input[type=search]{width:100%;font:inherit;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
 input[type=search]:focus{outline:2px solid var(--acc);outline-offset:1px}
+#fanswer{display:block;width:100%;min-height:220px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);font:inherit;line-height:1.5;resize:vertical}
+#fanswer:focus{outline:2px solid var(--acc);outline-offset:1px}
+.fmarking{margin-top:12px}
+.flinefeedback{display:grid;gap:8px;margin:10px 0 0;padding:0;list-style:none}
+.flinefeedback li{padding:9px 10px;border:1px solid var(--line);border-left:4px solid var(--ko);border-radius:8px;background:var(--bg)}
+.flinefeedback li.fline-ok{border-left-color:var(--ok)}
+.flinefeedback li.fline-partial{border-left-color:var(--acc)}
+.fline-title{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.fline-title strong{font-weight:650}
+.fline-state{flex:none;font-size:12px;font-weight:700;color:var(--ko)}
+.fline-ok .fline-state{color:var(--ok)}.fline-partial .fline-state{color:var(--acc)}
+.fline-keys{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
+.fline-keys span{padding:2px 6px;border:1px solid var(--line);border-radius:999px;font-size:12px}
+.fline-keys .key-ok{color:var(--ok);border-color:var(--ok)}
+.fline-keys .key-miss{color:var(--ko);border-color:var(--ko)}
 .results{margin-top:8px;max-height:420px;overflow-y:auto}
 .hit{display:block;width:100%;text-align:left;padding:10px 6px;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--ink);font:inherit;cursor:pointer;border-radius:8px}
 .hit:hover{background:var(--sel)}
@@ -139,7 +158,7 @@ input[type=email]:focus,input[type=password]:focus{outline:2px solid var(--acc);
 <body>
 <div class="loginwrap" id="login">
  <div class="card">
-  <div class="top" style="margin-top:0"><div class="logo" aria-hidden="true">🚒</div><div><h1>Entrenador de zonas de bomberos</h1><div class="sub">Acceso privado</div></div></div>
+  <div class="top" style="margin-top:0"><div class="logo" aria-hidden="true">🚒</div><div><h1>APP Bomberos</h1><div class="sub">Acceso privado</div></div></div>
   <form id="lform" autocomplete="on">
    <input id="lmail" type="email" placeholder="Correo electrónico" autocomplete="username" required aria-label="Correo electrónico">
    <input id="lpass" type="password" placeholder="Contraseña" autocomplete="current-password" required aria-label="Contraseña">
@@ -151,7 +170,7 @@ input[type=email]:focus,input[type=password]:focus{outline:2px solid var(--acc);
 <main id="app" class="hide">
 <header class="top">
  <div class="logo" aria-hidden="true">🚒</div>
- <div><h1>Entrenador de zonas de bomberos</h1><div class="sub" id="hsub">¿Qué quieres practicar?</div></div>
+ <div><h1>APP Bomberos</h1><div class="sub" id="hsub">¿Qué quieres practicar?</div></div>
  <button class="btn ghost small" id="logout" type="button" style="margin-left:auto">Salir</button>
 </header>
 <div id="backrow" class="hide" style="margin-bottom:12px"><button class="btn ghost small" id="back" type="button">← Menú principal</button></div>
@@ -162,14 +181,123 @@ input[type=email]:focus,input[type=password]:focus{outline:2px solid var(--acc);
  </div>
 </section>
 <section id="func" class="hide">
- <div class="card">
+ <div class="card" style="margin-bottom:10px">
   <div class="kicker">Funciones y material específico</div>
-  <div class="street" style="margin-bottom:6px">Próximamente</div>
-  <div class="mut">Aquí irán las preguntas de funciones de los bomberos del Ayuntamiento de València y, cuando lo tengas, el material específico.</div>
+  <div class="street" style="margin-bottom:6px">PROCOPs Bomberos València</div>
+  <div class="mut">Solo puestos de bomberos/as, BC y BZ (excluidos SG, CB, SB y CECOM). Escribe de memoria para simular el examen de desarrollo, o consulta las fichas oficiales y el material específico.</div>
  </div>
- <div class="menu">
-  <button class="mcard" type="button" disabled><span class="mi" aria-hidden="true">📝</span><span><b>Funciones</b><span class="d">Preguntas del temario (próximamente)</span></span></button>
-  <button class="mcard" type="button" disabled><span class="mi" aria-hidden="true">🧰</span><span><b>Material específico</b><span class="d">Próximamente</span></span></button>
+
+ <div class="seg" id="fmode" role="group" aria-label="Modo de funciones" style="margin-bottom:14px">
+  <button type="button" data-m="practice" aria-pressed="true">✍️ Práctica</button>
+  <button type="button" data-m="fichas" aria-pressed="false">📖 Fichas</button>
+  <button type="button" data-m="search" aria-pressed="false">🔎 Buscar</button>
+  <button type="button" data-m="stats" aria-pressed="false">📊 Estadísticas</button>
+ </div>
+
+ <!-- MODO 1: CONFIGURACIÓN DE PRÁCTICA -->
+ <div class="card" id="fsetup">
+  <div class="lab" style="margin-top:0">Qué practicar</div>
+  <div class="seg" id="ftype" role="group" aria-label="Tipo de pregunta">
+   <button type="button" data-v="funciones" aria-pressed="true">Funciones</button>
+   <button type="button" data-v="material" aria-pressed="false">Material específico</button>
+   <button type="button" data-v="ambas" aria-pressed="false">Ambas</button>
+  </div>
+  <div class="lab">PROCOP</div>
+  <select id="fprocop" aria-label="Filtrar por PROCOP" style="border-radius:12px;width:100%"></select>
+  <div class="lab">Filtro de Puesto (opcional)</div>
+  <select id="frole" aria-label="Filtrar por puesto" style="border-radius:12px;width:100%">
+   <option value="all">Todos los puestos de Bombero/a</option>
+   <option value="bz">Solo Bomberos Zapadores (BZ1-BZ2 / BZ3-BZ4)</option>
+   <option value="bc">Solo Bomberos Conductores (BC)</option>
+   <option value="sos">Dotaciones SOS / Ampliadas / Reserva</option>
+  </select>
+  <div class="mut" id="favailability" style="margin-top:8px"></div>
+  <div class="row foot">
+   <span class="mut">La nota se calcula por conceptos clave con auto-validación.</span>
+   <span style="display:flex;gap:6px">
+    <button class="btn ghost" id="frandom" type="button" title="Pregunta aleatoria">🎲 Aleatoria</button>
+    <button class="btn" id="fstart" type="button">Empezar</button>
+   </span>
+  </div>
+ </div>
+
+ <!-- MODO 1: PANTALLA DE RESOLUCIÓN Y CORRECCIÓN (frun) -->
+ <div class="card hide" id="frun">
+  <div class="xhead"><span class="chip" id="fnum">1 / 1</span><div class="xprog"><i id="fbar"></i></div><span class="chip" id="fscore">Nota 0/10</span></div>
+  <div class="kicker" id="ffkind">Funciones · PROCOP</div>
+  <div class="street" id="fquestion" style="font-size:22px"></div>
+  <form id="fform">
+   <div class="row" style="margin-top:8px;margin-bottom:4px">
+    <label class="lab" for="fanswer" style="margin:0">Tu respuesta</label>
+    <span class="mut" id="fcounts" style="font-size:12px">0 caracteres · 0 líneas</span>
+   </div>
+   <textarea id="fanswer" autocomplete="off" placeholder="Escribe aquí las funciones o materiales de memoria como en el examen de desarrollo..." style="min-height:120px"></textarea>
+   <div class="row foot"><span class="mut" id="fresult" role="status"></span><span><button class="btn ghost small" id="fskip" type="button">No lo sé</button> <button class="btn" id="fsubmit" type="submit">Corregir</button></span></div>
+  </form>
+  <div class="fmarking hide" id="fmarking" aria-live="polite">
+   <div style="margin-bottom:8px">
+    <p class="mut" style="margin:0;font-size:13px">💡 Revisa los conceptos detectados. Puedes marcar/desmarcar cada casilla para auto-validar si explicaste la idea con tus palabras:</p>
+   </div>
+   <ol class="flinefeedback" id="flinefeedback"></ol>
+  </div>
+  <div class="note hide" id="fcorrect" role="status"></div>
+  <div class="mut" id="fsave" role="status"></div>
+  <div class="row foot"><span class="mut" id="fprogress"></span><span><button class="btn ghost small" id="fback" type="button">← Volver a opciones</button> <button class="btn hide" id="fnext" type="button">Siguiente →</button></span></div>
+ </div>
+
+ <!-- MODO 1: FIN DE LA PRÁCTICA (fend) -->
+ <div class="card hide" id="fend">
+  <div class="kicker">Resultado de la práctica</div>
+  <div class="grade" id="ftotal"></div>
+  <div class="mut" id="fsummary"></div>
+  <div class="row foot"><button class="btn ghost" id="fstatsEnd" type="button">Estadísticas</button><button class="btn" id="frestart" type="button">Otra práctica</button></div>
+ </div>
+
+ <!-- MODO 2: FICHAS DE ESTUDIO (fichasView) -->
+ <div class="card hide" id="fichasView">
+  <div class="lab" style="margin-top:0">Fichas oficiales de estudio</div>
+  <div class="mut" style="margin-bottom:12px">En «Todo», las fichas se agrupan por PROCOP y equipo o puesto, para ver juntas sus funciones y el material específico cuando haya contenido.</div>
+  <div class="row" style="gap:8px;margin-bottom:14px">
+   <div style="flex:1;min-width:180px">
+    <label class="lab" for="ffichasProcop" style="margin-top:0">PROCOP</label>
+    <select id="ffichasProcop" style="border-radius:12px;width:100%"></select>
+   </div>
+   <div style="flex:1;min-width:140px">
+    <label class="lab" for="ffichasType" style="margin-top:0">Mostrar</label>
+    <select id="ffichasType" style="border-radius:12px;width:100%">
+     <option value="all">Todo (Funciones y Material)</option>
+     <option value="Funciones">Solo Funciones</option>
+     <option value="Material específico">Solo Material específico</option>
+    </select>
+   </div>
+  </div>
+  <div id="ffichasContainer" style="display:grid;gap:12px"></div>
+ </div>
+
+ <!-- MODO 3: BUSCADOR GENERAL -->
+ <div class="card hide" id="fsearchView">
+  <div class="lab" style="margin-top:0">Buscador de funciones y material</div>
+  <div class="mut" style="margin-bottom:12px">Busca en los puestos, las funciones y el material específico de todos los PROCOPs.</div>
+  <div style="display:grid;gap:8px;margin-bottom:14px">
+   <input type="search" id="fsearchInput" placeholder="Buscar en funciones o material: ej. 'salvamento', '45', 'visores', 'cuerda'..." style="border-radius:12px;width:100%;padding:10px 12px">
+   <div class="row" style="gap:8px">
+    <select id="fsearchProcop" style="border-radius:12px;flex:1">
+     <option value="all">Todos los PROCOPs</option>
+    </select>
+    <span class="mut" id="fsearchCount" style="font-size:13px;align-self:center"></span>
+   </div>
+  </div>
+  <div id="fsearchContainer" style="display:grid;gap:12px"></div>
+ </div>
+
+ <!-- MODO 4: ESTADÍSTICAS (fstatsView) -->
+ <div class="card hide" id="fstatsView">
+  <div class="lab" style="margin-top:0">Estadísticas · Funciones y material específico</div>
+  <div class="mut" id="fstatsMessage" role="status">Las estadísticas de este apartado se guardan por separado del callejero.</div>
+  <div class="stats" id="fhighlights"></div>
+  <div class="lab">Todas las preguntas · ordenadas de menor a mayor puntuación</div><div class="wrap" id="fallQuestions"></div>
+  <div class="row foot"><button class="btn ghost small" id="fstatsClear" type="button">Borrar mis estadísticas</button></div>
+  <div class="row foot"><button class="btn ghost" id="fstatsBack" type="button">Volver a funciones</button><button class="btn" id="fstatsRefresh" type="button">Actualizar</button></div>
  </div>
 </section>
 <div class="tabs hide" id="tabs" role="tablist">
@@ -275,7 +403,7 @@ function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;","
 const pk=i=>'<span class="pk"><i class="dot" style="background:var(--p'+i+')"></i>'+P[i]+'</span>';
 const pks=a=>a.map(pk).join('<span class="sl">/</span>');
 
-function status(t){$("save").textContent=t||""}
+function status(t){$("save").textContent=t||"";const fsave=$("fsave");if(fsave)fsave.textContent=t||""}
 /* Guardado en Supabase (cola con reintentos). Cada usuario solo ve y guarda lo suyo (RLS) */
 const sbURL=(()=>{try{return new URL(String(CONFIG.SUPABASE_URL).trim()).origin}catch(_){return String(CONFIG.SUPABASE_URL).trim()}})(); /* deja solo https://xxxx.supabase.co aunque pegues una barra o una ruta de más */
 const sb=window.supabase.createClient(sbURL,String(CONFIG.SUPABASE_ANON_KEY).trim());
@@ -286,6 +414,8 @@ function enqueue(job){queue.push(job);flush()}
 async function send(j){
  let r;
  if(j.t==="ans") r=await sb.rpc("save_answer",{p_id:j.id,p_name:j.name,p_ok:j.ok});
+ else if(j.t==="func") r=await sb.rpc("record_function_attempt",{p_function_id:j.id,p_function_name:j.name,p_is_correct:j.ok});
+ else if(j.t==="fclear") r=await sb.rpc("clear_function_stats");
  else if(j.t==="exam") r=await sb.from("exams").upsert({t:j.r.t,mode:XMODES[j.r.m]||j.r.m,n:j.r.n,ok:j.r.ok,ko:j.r.ko,b:j.r.b,g:Math.round(j.r.g*100)/100},{onConflict:"user_id,t",ignoreDuplicates:true});
  else if(j.t==="xclear") r=await sb.from("exams").delete().gte("t",0);
  else r=await sb.from("progress").delete().neq("street_id","");
@@ -299,9 +429,15 @@ function flush(){
  send(j).then(()=>{
    queue.shift();sending=false;
    if(j.t==="exam")xhistMark(j.r.t);if(j.t==="exam"||j.t==="xclear")xsyncMsg();
+   if(j.t==="fclear"){$("fstatsClear").disabled=false;$("fstatsClear").textContent="Borrar mis estadísticas";fLoadStats()}
    if(queue.length)flush();else status("Guardado en la base de datos");
-  }).catch(()=>{
-   sending=false;status("No se pudo guardar. Reintentando…");
+  }).catch(e=>{
+   if(j.t==="fclear"){
+    queue.shift();sending=false;$("fstatsClear").disabled=false;$("fstatsClear").textContent="Borrar mis estadísticas";
+    $("fstatsMessage").textContent="No se pudieron borrar las estadísticas: "+String((e&&(e.message||e.error))||e||"sin detalle");
+    if(queue.length)flush();return;
+   }
+   sending=false;status("No se pudo guardar ("+String((e&&(e.message||e.error))||e||"sin detalle")+"). Reintentando…");
    clearTimeout(retryT);retryT=setTimeout(flush,5000);
   });
 }
@@ -833,6 +969,567 @@ function view(v){
  else["play","stats","find","exam"].forEach(i=>$(i).classList.add("hide"));
  window.scrollTo(0,0);
 }
+const FDATA_LOCAL = [{"procop":"1.01","version":"v1.0 · dic. 2021","role":"Equipo 1 · BZ1-BZ2 · Caso 1","type":"Funciones","facts":[{"keywords":["instalación","línea",["Ø25/45","25/45","Ø25"],"ataque",["agua","espuma"]]},{"keywords":["control","extinción","incendio"]}],"answer":"• Realizar la instalación de la línea de Ø25/45 de ataque al incendio (de agua o de espuma).\n• Control y Extinción del incendio."},{"procop":"1.01","version":"v1.0 · dic. 2021","role":"Equipo 1 · BZ1-BZ2 · Caso 2","type":"Funciones","facts":[{"keywords":["instalación","línea","Ø45","ataque",["agua","espuma"]]},{"keywords":["control","extinción","incendio"]}],"answer":"• Realizar la instalación de una de las líneas de Ø45 de ataque al incendio (de agua o de espuma).\n• Control y Extinción del incendio."},{"procop":"1.01","version":"v1.0 · dic. 2021","role":"Equipo 2 · BZ3-BZ4 · Caso 1","type":"Funciones","facts":[{"keywords":["apoyo",["BC","bombero conductor"]]},{"keywords":["Equipo1","cuando sea necesario"]}],"answer":"• Tareas de apoyo al BC.\n• Tareas de apoyo al Equipo1 cuando sea necesario."},{"procop":"1.01","version":"v1.0 · dic. 2021","role":"Equipo 2 · BZ3-BZ4 · Caso 2","type":"Funciones","facts":[{"keywords":["colocación","puesto base"]},{"keywords":["instalación","línea","Ø45","ataque",["agua","espuma"]]},{"keywords":["control","extinción","incendio"]}],"answer":"• Colocación del puesto base.\n• Realizar la instalación de una de las líneas de Ø45 de ataque al incendio (de agua o de espuma).\n• Control y Extinción del incendio."},{"procop":"1.01","version":"v1.0 · dic. 2021","role":"Bombero conductor del BUP · Caso 1","type":"Funciones","facts":[{"keywords":["secuencia","emisora","requerimientos de comunicaciones","intervinientes"]},{"keywords":["ubicar","vehículo","correcta","estacionamiento defensivo"]},{"keywords":["conectar la bomba","manejarla","presiones adecuadas"]},{"keywords":["instalación hidráulica","espuma","espumante","lanza de espuma","no pasa mezcla espumante al tanque"]},{"keywords":["realizar","conexiones","mangaje"]},{"keywords":["prestar atención","indicadores"]},{"keywords":["balizar","señalizar","iluminar"]},{"keywords":["localizar","hidrantes","más cercanos","colaboración","necesario"]}],"answer":"• Introducir la secuencia de la emisora y estar atento a los requerimientos de comunicaciones de los intervinientes y del CECOM.\n• Ubicar el vehiculo de forma correcta; ESTACIONAMIENTO DEFENSIVO.\n• Conectar la bomba y manejarla con las presiones adecuadas.\n• En caso de instalación hidráulica de espuma, accionar los elementos adecuados para proveer de espumante a la lanza de espuma, y asegurarse de que no pasa mezcla espumante al tanque del vehiculo (cierre de la llave retorno o sifón).\n• Realizar las conexiones del mangaje con la bomba.\n• Prestar atención en todo momento a los indicadores de la bomba.\n• Balizar, señalizar e iluminar si procede.\n• Localizar hidrantes más cercanos, con colaboración de CECOM cuando sea necesario."},{"procop":"1.01","version":"v1.0 · dic. 2021","role":"Bombero conductor del BUP · Caso 2","type":"Funciones","facts":[{"keywords":["todas las tareas descritas","caso 1"]},{"keywords":["iniciar","instalación","salida","Ø70mm","baja presión","bomba","tramo de alimentación","manguera","equipamiento"]},{"keywords":["desconexión","etapa de alta","sifón"]}],"answer":"• Todas las tareas descritas para el caso 1.\n• Iniciar la instalación desde la salida de Ø70mm de baja presión de la bomba realizando la instalación del tramo de alimentación con una manguera de Ø70mm hasta donde le permita su equipamiento.\n• Desconexión de la etapa de alta y atento al sifón."},{"procop":"1.01","version":"v1.0 · dic. 2021","role":"Bombero conductor BNL","type":"Funciones","facts":[{"keywords":["secuencia","emisora","comunicaciones","intervinientes"]},{"keywords":["ubicar","vehículo","correcta","segura"]},{"keywords":["conectar la bomba","manejarla","presiones adecuadas"]},{"keywords":["instalación","abastecimiento","agua","BUP"]},{"keywords":["balizar","señalizar","iluminar"]},{"keywords":["localizar","hidrantes","más cercanos","CECOM"]}],"answer":"• Introducir la secuencia de la emisora y estar atento a los requerimientos de comunicaciones de los intervinientes.\n• Ubicar el vehículo de forma correcta y segura.\n• Conectar la bomba y manejarla con las presiones adecuadas.\n• Realizar la instalación de abastecimiento de agua al BUP.\n• Balizar, señalizar e iluminar si procede.\n• Localizar hidrantes más cercanos, con colaboración de CECOM cuando sea necesario."},{"procop":"1.01","version":"v1.0 · dic. 2021","role":"Bombero zapador BNL","type":"Funciones","facts":[{"keywords":["colaborar","conductor del BNL","BUP"]},{"keywords":["instalación","tramo de abastecimiento","hidrante más próximo"]}],"answer":"• Colaborar con el conductor del BNL para la instalación de abastecimiento de agua al BUP.\n• Realizar la instalación del tramo de abastecimiento desde el hidrante más próximo."},{"procop":"1.02","version":"v1 · dic. 2020","role":"Equipo 1 · BZ1-BZ2","type":"Funciones","facts":[{"keywords":["instalación","línea de ataque","incendio",["agua","espuma"]]},{"keywords":["control","extinción","incendio"]}],"answer":"• Realizar la instalación de la línea de ataque al incendio (de agua o de espuma).\n• Control y Extinción del incendio."},{"procop":"1.02","version":"v1 · dic. 2020","role":"BC · BUL","type":"Funciones","facts":[{"keywords":["secuencia","emisora","requerimientos","comunicaciones","intervinientes","CECOM"]},{"keywords":["ubicar","vehículo","correcta","estacionamiento defensivo"]},{"keywords":["conectar","bomba","presiones adecuadas"]},{"keywords":["instalación hidráulica","espuma","espumante","lanza de espuma","no pasa mezcla espumante al tanque",["llave retorno","sifón"]]},{"keywords":["conexiones","mangaje","bomba"]},{"keywords":["comunicaciones","indicadores","bomba"]},{"keywords":["balizar","señalizar"]},{"keywords":["iluminar"]},{"keywords":["localizar","hidrantes","más cercanos","CECOM","necesario"]}],"answer":"• Introducir la secuencia de la emisora y estar atento a los requerimientos de comunicaciones de los intervinientes y del CECOM.\n• Ubicar el vehículo de forma correcta; ESTACIONAMIENTO DEFENSIVO.\n• Conectar la bomba y manejarla con las presiones adecuadas.\n• En caso de instalación hidráulica de espuma, accionar los elementos adecuados para proveer de espumante a la lanza de espuma, y asegurarse de que no pasa mezcla espumante al tanque del vehículo (cierre de la llave retorno o sifón).\n• Realizar las conexiones del mangaje con la bomba.\n• Prestar atención en todo momento a las comunicaciones y a los indicadores de la bomba.\n• Balizar y señalizar.\n• Iluminar si procede.\n• Localizar hidrantes más cercanos, con colaboración de CECOM cuando sea necesario."},{"procop":"1.11","version":"v3.6 · may. 2024","role":"Bomberos zapadores","type":"Funciones","facts":[{"keywords":["control","extinción",["fichas de intervención","fichas intervención"],"anexo III"]}],"answer":"• Control y extinción del incendio conforme a las Fichas de Intervención del anexo III."},{"procop":"1.11","version":"v3.6 · may. 2024","role":"Equipo PMA · BC / OC – BZ / OC PMA","type":"Funciones","facts":[{"keywords":["mensajes",["recibir","recepción"],["enviar","envío"],["instrucciones del Director del PMA","Director del PMA"]]},{"keywords":["emisoras",["canales oportunos","canales adecuados","canales correspondientes"],["atentos a las comunicaciones","atención a las comunicaciones"]]},{"keywords":[["registro de comunicaciones","registro de las comunicaciones"],"anexo IV"]},{"keywords":[["registro de vehículos","registro de los vehículos"],"anexo IV"]}],"answer":"• Recibir y enviar los mensajes necesarios para la intervención bajo las instrucciones del Director del PMA.\n• Colocar las emisoras en los canales oportunos y permanecer atentos a las comunicaciones.\n• Realizar el registro de comunicaciones del anexo IV.\n• Realizar el registro de vehículos del anexo IV."},{"procop":"1.11","version":"v3.6 · may. 2024","role":"Equipo PMA · BC / OC – BZ / OC PMA","type":"Material específico","facts":[{"keywords":[["maletines 1 y 2","maletín 1 y 2"],"PMA"]},{"keywords":["tubo","planos","ortofotos","Devesa"]},{"keywords":["maletín CRM"]}],"answer":"• Maletines 1 y 2 del PMA.\n• Tubo con el juego de planos y ortofotos de la Devesa.\n• Maletín CRM."},{"procop":"1.11","version":"v3.6 · may. 2024","role":"BC Autobomba","type":"Funciones","facts":[{"keywords":["secuencia","emisora","comunicaciones","CECOM",["equipos intervinientes","equipos que intervienen"]]},{"keywords":["emisora",["modo pasarela","pasarela"],["cuando le sea ordenado","por orden","cuando se ordene"]]},{"keywords":[["ubicar vehículo","ubicar el vehículo"],["correcta y segura","correctamente y de forma segura"],"vía de escape","urgencia"]},{"keywords":["conectar","manejar","bomba",["presiones adecuadas","presión adecuada"]]},{"keywords":["carrete de emergencia","toma de carga","sifón de alta"]},{"keywords":["comunicaciones","indicadores","bomba"]},{"keywords":["iluminar","zona",["si procede","si es necesario"]]},{"keywords":["localizar","hidrantes",["más cercanos","cercanos"]]}],"answer":"• Realizar la secuencia de la emisora y estar atento a los requerimientos de comunicaciones del CECOM y de los equipos intervinientes.\n• Colocar la emisora en modo pasarela cuando le sea ordenado.\n• Ubicar el vehículo de forma correcta y segura, teniendo en cuenta la vía de escape en caso de urgencia.\n• Conectar y manejar la bomba con las presiones adecuadas.\n• Conectar el carrete de emergencia a la toma de carga para emplearlo como sifón de alta.\n• Prestar atención en todo momento a las comunicaciones y a los indicadores de la bomba.\n• Iluminar la zona si procede.\n• Localizar los hidrantes más cercanos."},{"procop":"1.11","version":"v3.6 · may. 2024","role":"BC UEX","type":"Funciones","facts":[{"keywords":["disposición","Director del PMA",["apoyo","apoyar"],["unidades desplazadas","unidades desplegadas"]]},{"keywords":[["traslado de personal y material","trasladar personal y material"],"vigía"]},{"keywords":[["piloto de drones","piloto de dron"],"Dron Vigía"]},{"keywords":[["ubicar vehículo","ubicar el vehículo"],["correcta y segura","correctamente y de forma segura"],"vía de escape","urgencia"]}],"answer":"• Permanecer a disposición del Director del PMA para apoyar a las unidades desplazadas.\n• Trasladar personal y material cuando sea necesario y ejercer tareas de vigía.\n• Si el conductor es piloto de drones, podrá ejercer la tarea de «Dron Vigía».\n• Ubicar el vehículo de forma correcta y segura, teniendo en cuenta la vía de escape en caso de urgencia."},{"procop":"1.11","version":"v3.6 · may. 2024","role":"BC UEX","type":"Material específico","facts":[{"keywords":["prismáticos","planos","vigía"]},{"keywords":["llaves","acceso","viales","torres",["mejor visión","mejor vista"],["zona afectada","zona del incendio"]]},{"keywords":["dron"]}],"answer":"• Para tareas de vigía: prismáticos y planos.\n• Llaves de acceso a viales y a las torres con mejor visión de la zona afectada.\n• Dron."},{"procop":"1.11","version":"v3.6 · may. 2024","role":"Equipo AMB · BC AMB-DUE","type":"Funciones","facts":[{"keywords":["secuencia","emisora","comunicaciones","intervinientes"]},{"keywords":[["ubicar vehículo","ubicar el vehículo"],"lugar establecido","Director del PMA"]},{"keywords":["esperar",["orden de actuación","orden para actuar"],["Coordinador de la unidad Básica Sanitaria","Coordinador de la UBS","Coordinador sanitario"],["Director del PMA","PMA en ausencia del primero"]]},{"keywords":["valorar",["asistencia sanitaria prehospitalaria","asistencia prehospitalaria"]]},{"keywords":[["traslados hospitalarios","traslado hospitalario"]]}],"answer":"• Realizar la secuencia de la emisora y estar atento a los requerimientos de comunicaciones de los intervinientes.\n• Ubicar el vehículo en el lugar establecido por el Director del PMA.\n• Esperar la orden de actuación del Coordinador de la Unidad Básica Sanitaria o, en su ausencia, del Director del PMA.\n• Valorar y prestar asistencia sanitaria prehospitalaria.\n• Realizar los traslados hospitalarios."},{"procop":"1.11","version":"v3.6 · may. 2024","role":"Equipo AMB · BC AMB-DUE","type":"Material específico","facts":[{"keywords":["mochila","material sanitario"]}],"answer":"• Mochila de material sanitario."},{"procop":"1.03","version":"v1.0 · ene. 2023","role":"Dotación básica · BC UEX-A","type":"Funciones","facts":[{"keywords":["secuencia","emisora"]},{"keywords":["requerimientos","comunicaciones"]},{"keywords":["control","personal","zona caliente"]},{"keywords":["Punto de Control",["si se constituye","cuando se constituya"]]},{"keywords":["disposición","SG","tarea"]}],"answer":"• Introducir la secuencia en la emisora y estar atento a los requerimientos de comunicaciones.\n• Controlar en el Punto de Control al personal que entra en zona caliente, si se constituye.\n• Permanecer a disposición del Sargento para cualquier otra tarea que se le encomiende."},{"procop":"1.03","version":"v1.0 · ene. 2023","role":"Equipo 1 · Básica: BUP A / Ampliada: BUP B · BZ1-BZ2","type":"Funciones","facts":[{"keywords":["puesto base","Cabo"]},{"keywords":["bifurcación","línea de ataque","45"]},{"keywords":["apertura","acceso"]},{"keywords":["salvamento","rescate"]},{"keywords":["control","extinción","incendio"]},{"keywords":["corte","suministros","interior"]}],"answer":"• Acceder al puesto base con el Cabo.\n• Montar desde el puesto base la bifurcación y la línea de ataque de Ø45 mm.\n• Abrir el acceso si procede.\n• Realizar las acciones necesarias de salvamento y rescate.\n• Controlar y extinguir el incendio.\n• Cortar, cuando sea posible, los suministros necesarios en el interior del establecimiento."},{"procop":"1.03","version":"v1.0 · ene. 2023","role":"Equipo 2 · Básica: BUP A / Ampliada: BUP B · BZ3-BZ4","type":"Funciones","facts":[{"keywords":["alimentación","45","puesto de acometida","puesto base","bifurcación"]},{"keywords":["línea de reserva","45"]},{"keywords":["monitor","necesario"]},{"keywords":["salvamento","extinción"]},{"keywords":["control","humos","ventilación","mando"]},{"keywords":["corte","suministros","exterior"]},{"keywords":["inspección","colindantes"]},{"keywords":["ventilador","suelo","antes","tareas"]}],"answer":"• Instalar el tramo de alimentación de Ø45 mm desde el puesto de acometida hasta el puesto base y conectarlo a la bifurcación.\n• Montar una línea de reserva de 45 mm o un monitor si es necesario.\n• Realizar las acciones necesarias de salvamento y extinción.\n• Controlar los humos y realizar la ventilación a petición del mando.\n• Cortar los suministros necesarios en el exterior del establecimiento.\n• Inspeccionar las naves o edificaciones colindantes.\n• Bajar al suelo el ventilador de presión positiva del BUP antes de realizar el resto de tareas."},{"procop":"1.03","version":"v1.0 · ene. 2023","role":"BC · Básica: BUP A / Ampliada: BUP B","type":"Funciones","facts":[{"keywords":["secuencia","emisora"]},{"keywords":["requerimientos","comunicaciones"]},{"keywords":["vehículo","zona segura","colapso","VA"]},{"keywords":["modo Pasarela","TMO"]},{"keywords":["conectar","bomba","presiones"]},{"keywords":["70 mm","puesto de acometida","bifurcación","70/45"]},{"keywords":["abastecimiento","hidrante","nodriza"]},{"keywords":["balizar","señalizar"]},{"keywords":["iluminar","zona"]},{"keywords":["noria","abastecimiento","SG"]}],"answer":"• Introducir la secuencia en la emisora y atender los requerimientos de comunicaciones.\n• Ubicar el vehículo en una zona segura, fuera de riesgo de colapso y reservando espacio para el VA.\n• Poner la emisora en modo Pasarela, en el grupo TMO establecido, cuando proceda.\n• Conectar y manejar la bomba con las presiones adecuadas.\n• Iniciar la acometida desde la salida de baja presión con un tramo de Ø70 mm y el puesto de acometida con bifurcación 70/45.\n• Preparar el abastecimiento desde hidrante o vehículo nodriza.\n• Balizar y señalizar la zona, e iluminarla si procede.\n• Realizar la noria de abastecimiento a petición del Sargento cuando se requiera por la distancia al hidrante."},{"procop":"1.03","version":"v1.0 · ene. 2023","role":"Dotación básica · Equipo VA · CBVA / BZ1VA-BZ2","type":"Funciones","facts":[{"keywords":["colaborar","BCVA","ubicación","vehículo"]},{"keywords":["balizamiento","señalización"]},{"keywords":["manejar","vehículo de altura","cesta"]},{"keywords":["tramo de alimentación","puesto de acometida","extinción","VA"]},{"keywords":["rescate","control","extinción","propagación"]}],"answer":"• Colaborar con el BCVA en la correcta ubicación del vehículo.\n• Colaborar en el balizamiento y la señalización para evitar el tránsito de personas por el campo de trabajo del VA.\n• Manejar el vehículo de altura desde el puesto de la cesta.\n• Montar el tramo de alimentación desde el puesto de acometida para extinguir desde el VA.\n• Realizar desde el VA acciones de rescate, control y extinción, evitando la propagación."},{"procop":"1.03","version":"v1.0 · ene. 2023","role":"Dotación básica · BC VA","type":"Funciones","facts":[{"keywords":["secuencia","emisora"]},{"keywords":["requerimientos","comunicaciones"]},{"keywords":["vehículo","zona de trabajo","colapso"]},{"keywords":["balizar","señalizar"]},{"keywords":["colaborar","equipo VA","instalación","extinción"]},{"keywords":["vigilar","personal","cesta"]},{"keywords":["manejar","brazo","escalera","puesto de mando"]}],"answer":"• Introducir la secuencia en la emisora y atender los requerimientos de comunicaciones.\n• Ubicar correctamente el vehículo con acceso a la zona de trabajo y fuera del riesgo de colapso.\n• Balizar y señalizar la zona.\n• Colaborar con el equipo del VA en la instalación para la extinción desde el VA.\n• Vigilar en todo momento al personal que trabaja desde la cesta.\n• Manejar el brazo o la escalera desde el puesto de mando de la plataforma cuando proceda."},{"procop":"1.03","version":"v1.0 · ene. 2023","role":"Equipo BNL/BNP · Básica: A / Ampliada: B","type":"Funciones","facts":[{"keywords":["secuencia","emisora"]},{"keywords":["vehículo","correcta","segura"]},{"keywords":["conectar","bomba","presiones"]},{"keywords":["localizar","hidrante"]},{"keywords":["asegurar","suministro","hidrante"]},{"keywords":["instalación","abastecimiento","BNL","BUP"]},{"keywords":["balizar","señalizar"]},{"keywords":["iluminación","zona"]},{"keywords":["colaborar","conductor","abastecimiento"]},{"keywords":["instalación","abastecimiento","hidrante","toma de alimentación"]},{"keywords":["labores logísticas","SG"]}],"answer":"• El BCBNL/BNP introduce la secuencia de la emisora, ubica el vehículo de forma segura, conecta y maneja la bomba con las presiones adecuadas, localiza el hidrante más cercano y asegura el suministro.\n• Realiza la instalación de abastecimiento desde el BNL/BNP al BUP, baliza y señaliza la zona e ilumina si procede.\n• El BZBNL/BNP colabora con el conductor y en las funciones de abastecimiento, instala desde el hidrante más próximo hasta la toma de alimentación del BNL/BNP y realiza otras labores logísticas que le asigne el Sargento."},{"procop":"1.03","version":"v1.0 · ene. 2023","role":"Dotación básica · Equipo AMB · BCAMB-DUE","type":"Funciones","facts":[{"keywords":["secuencia","emisora"]},{"keywords":["requerimientos","comunicaciones"]},{"keywords":["vehículo","salida rápida","libre de obstáculos"]},{"keywords":["esperar","orden de actuación","mando"]},{"keywords":["valorar","asistencia sanitaria"]},{"keywords":["traslados","hospitalarios"]}],"answer":"• Introducir la secuencia en la emisora y atender los requerimientos de comunicaciones.\n• Ubicar el vehículo correctamente, con salida rápida y libre de obstáculos para un posible traslado hospitalario.\n• Esperar la orden de actuación del mando.\n• Valorar y prestar asistencia sanitaria.\n• Realizar los traslados hospitalarios que procedan."},{"procop":"1.05","version":"v1.2 · feb. 2025","role":"Movilización mínima · Equipo 1 · BZ1 BUP-BZ2 BUP","type":"Funciones","facts":[{"keywords":["acceder","puesto base","Cabo"]},{"keywords":["montar","bifurcación","línea de ataque","puesto base"]},{"keywords":["colocar","cortina de humos","CB BUP"]},{"keywords":["columna seca","conectar","línea de ataque","hornacina"]},{"keywords":["salvamento","extinción"]},{"keywords":["cortar","suministros","interior"]}],"answer":"• Acceder al puesto base con el Cabo.\n• Montar la bifurcación y la línea de ataque en el puesto base.\n• Colocar la cortina de humos cuando lo determine el CB BUP.\n• Si se utiliza la columna seca, conectar la línea de ataque para extinguir desde la hornacina adecuada.\n• Realizar acciones de salvamento y extinción.\n• Cortar los suministros necesarios en el interior del local afectado."},{"procop":"1.05","version":"v1.2 · feb. 2025","role":"Movilización mínima · Equipo 1 · BZ1 BUP-BZ2 BUP","type":"Material específico","facts":[{"keywords":["Bolsa de Ataque 1","Bolsa de Ataque 2"]},{"keywords":["cortina de humos"]},{"keywords":["visor térmico"]}],"answer":"• Bolsa de Ataque 1 y Bolsa de Ataque 2.\n• Cortina de humos.\n• Visor térmico."},{"procop":"1.05","version":"v1.2 · feb. 2025","role":"Movilización mínima · Equipo 2 · Tareas generales · BZ3 BUP-BZ4 BUP","type":"Funciones","facts":[{"keywords":["inspeccionar","bloquear","ascensor","planta baja"]},{"keywords":["tramo de alimentación interior","Ø45 mm","puesto de acometida","puesto base","bifurcación"]},{"keywords":["línea de reserva","necesaria"]},{"keywords":["inspeccionar","caja de escalera","azotea","viviendas","locales"]},{"keywords":["controlar","humos"]},{"keywords":["salvamento","extinción","protección","ventilación"]},{"keywords":["cortar","suministros","exterior"]},{"keywords":["ventilador de presión positiva","BUP","suelo","resto de tareas"]}],"answer":"• Inspeccionar y bloquear el ascensor, preferentemente en planta baja.\n• Instalar el tramo de alimentación interior de Ø45 mm desde el puesto de acometida hasta el puesto base y conectarlo a la bifurcación.\n• Montar una línea de reserva si es necesaria.\n• Inspeccionar la caja de escalera desde la planta del incendio hasta la azotea, así como las viviendas y locales afectados.\n• Controlar los humos.\n• Realizar acciones de salvamento, extinción y protección, y preparar la ventilación.\n• Cortar los suministros necesarios en el exterior del local afectado.\n• Bajar al suelo el ventilador de presión positiva del BUP antes de realizar el resto de tareas."},{"procop":"1.05","version":"v1.2 · feb. 2025","role":"Movilización mínima · Equipo 2 · Tareas con columna seca · BZ3 BUP-BZ4 BUP","type":"Funciones","facts":[{"keywords":["localizar","hornacina","columna seca"]},{"keywords":["puesto de acometida","tramo de alimentación","columna seca","llave de purga"]},{"keywords":["salidas","Ø45 mm","anteriores","puesto base","cerradas"]},{"keywords":["llaves de seccionamiento","columna","abiertas"]},{"keywords":["cerrar","llave de seccionamiento","inmediatamente superior","puesto base"]}],"answer":"• Localizar la hornacina adecuada de la columna seca.\n• Conectar desde el puesto de acometida el tramo de alimentación a la columna seca y cerrar la llave de purga.\n• Comprobar que las salidas de Ø45 mm anteriores al puesto base estén cerradas.\n• Comprobar que las llaves de seccionamiento de la columna estén abiertas.\n• Si la situación lo permite, cerrar la llave de seccionamiento de la columna seca inmediatamente superior al puesto base."},{"procop":"1.05","version":"v1.2 · feb. 2025","role":"Movilización mínima · Equipo 2 · Instalación con mangueras · BZ3 BUP-BZ4 BUP","type":"Material específico","facts":[{"keywords":["2","bolsas de instalación"]},{"keywords":["2","mangueras","línea de reserva","necesario"]}],"answer":"• 2 bolsas de instalación.\n• 2 mangueras para la línea de reserva, en caso necesario."},{"procop":"1.05","version":"v1.2 · feb. 2025","role":"Movilización mínima · Equipo 2 · Instalación con columna seca · BZ3 BUP-BZ4 BUP","type":"Material específico","facts":[{"keywords":["manguera","Ø45mm","plegada en doble","puesto de acometida","columna seca"]},{"keywords":["reducción","70/45"]},{"keywords":["mangueras","línea de reserva","necesario"]},{"keywords":["llave de cuadradillo"]}],"answer":"• 1 manguera Ø45mm plegada en doble para la conexión desde el puesto de acometida a la columna seca.\n• 1 reducción 70/45.\n• 2 mangueras para la línea de reserva, en caso necesario.\n• Llave de cuadradillo."},{"procop":"1.05","version":"v1.2 · feb. 2025","role":"Movilización mínima · Equipo VA · CBVA/BZ1VA-BZ2 VA","type":"Funciones","facts":[{"keywords":["colaborar","correcta ubicación","vehículo"]},{"keywords":["balizamiento","señalización","tránsito de personas","campo de trabajo"]},{"keywords":["manejar","brazo","escalera","puesto de la cesta"]},{"keywords":["tramo de alimentación exterior","puesto de acometida","extinguir","VA"]},{"keywords":["rescate","extinción","exterior","protección de fachada"]}],"answer":"• Colaborar en la correcta ubicación del vehículo.\n• Colaborar en el balizamiento y la señalización para evitar el tránsito de personas por el campo de trabajo del VA.\n• Manejar el brazo o la escalera desde el puesto de la cesta.\n• Realizar el tramo de alimentación exterior desde el puesto de acometida para extinguir desde el VA.\n• Realizar acciones de rescate o extinción desde el exterior, o de protección de fachada."},{"procop":"1.05","version":"v1.2 · feb. 2025","role":"Movilización mínima · Equipo VA · CBVA/BZ1VA-BZ2 VA","type":"Material específico","facts":[{"keywords":["mangueras","Ø25mm","plegada en doble","alimentación exterior"]},{"keywords":["reducción","45/25"]},{"keywords":["Bolsa de Ataque VA"]}],"answer":"• Mangueras de Ø25mm plegadas en doble para montar el tramo de alimentación exterior.\n• 1 reducción 45/25.\n• Bolsa de Ataque VA."},{"procop":"1.05","version":"v1.2 · feb. 2025","role":"Movilización mínima · Equipo AMB · ENF-BCAMB (AMB ampliable según §5.2)","type":"Funciones","facts":[{"keywords":["conductor","secuencia","emisora","requerimientos"]},{"keywords":["vehículo","salida rápida","libre de obstáculos","traslado hospitalario"]},{"keywords":["esperar","orden de actuación","mando"]},{"keywords":["valorar","asistencia sanitaria prehospitalaria"]},{"keywords":["traslados hospitalarios"]}],"answer":"• El conductor realizará la secuencia de la emisora y estará atento a los requerimientos de los intervinientes.\n• Ubicar el vehículo correctamente, con salida rápida y libre de obstáculos para un posible traslado hospitalario.\n• Esperar la orden de actuación del mando de la intervención.\n• Valorar y prestar asistencia sanitaria prehospitalaria.\n• Realizar los traslados hospitalarios."},{"procop":"1.05","version":"v1.2 · feb. 2025","role":"Movilización mínima · Equipo AMB · ENF-BCAMB (AMB ampliable según §5.2)","type":"Material específico","facts":[{"keywords":["mochila","material sanitario"]}],"answer":"• Mochila de material sanitario."},{"procop":"1.05","version":"v1.2 · feb. 2025","role":"Movilización mínima · BC BUP","type":"Funciones","facts":[{"keywords":["secuencia","emisora","CECOM","equipos intervinientes"]},{"keywords":["ubicar","vehículo","portal","zona de trabajo","VA"]},{"keywords":["modo Pasarela","CECOM","canal"]},{"keywords":["conectar","manejar","bomba","presiones"]},{"keywords":["salida de alta presión","primer tramo","puesto de acometida"]},{"keywords":["carrete de emergencia","toma de carga","sifón de alta"]},{"keywords":["comunicaciones","indicadores","bomba"]},{"keywords":["presión adecuada"]},{"keywords":["balizar","señalizar"]},{"keywords":["ventilador","portal","otro bombero"]},{"keywords":["iluminar","zona"]},{"keywords":["hidrantes","cercanos"]}],"answer":"• Realizar la secuencia de la emisora y atender los requerimientos de comunicaciones del CECOM y de los equipos intervinientes.\n• Ubicar el vehículo sobrepasando el portal, dejando una zona de trabajo entre la bomba y el portal y espacio libre junto a la fachada para emplazar el VA.\n• Poner la emisora en modo Pasarela, en el canal indicado por el CECOM.\n• Conectar y manejar la bomba con las presiones adecuadas.\n• Iniciar la instalación desde la salida de alta presión de la bomba, colocando el primer tramo y el puesto de acometida.\n• Conectar el carrete de emergencia a la toma de carga para emplearlo como sifón de alta.\n• Atender las comunicaciones y los indicadores de la bomba.\n• Colocar la presión adecuada cuando proceda.\n• Balizar y señalizar.\n• Trasladar el ventilador al portal con la colaboración de otro bombero, según disponibilidad.\n• Iluminar la zona si procede.\n• Localizar los hidrantes más cercanos."},{"procop":"1.05","version":"v1.2 · feb. 2025","role":"Movilización mínima · BC BUP","type":"Material específico","facts":[{"keywords":["manguera","Ø45mm","plegada en doble","tramo de acometida"]},{"keywords":["bifurcación","70/45","reducción invertida","puesto de acometida"]},{"keywords":["cinta de balizar","conos"]}],"answer":"• Manguera Ø45mm plegada en doble para el tramo de acometida.\n• Bifurcación 70/45 con reducción invertida para el puesto de acometida.\n• Cinta de balizar y conos."},{"procop":"1.05","version":"v1.2 · feb. 2025","role":"Movilización mínima · BCVA","type":"Funciones","facts":[{"keywords":["secuencia","emisora","requerimientos","comunicaciones"]},{"keywords":["ubicar","vehículo","zona de trabajo","caída de objetos"]},{"keywords":["esperar","orden de emplazamiento"]},{"keywords":["balizar","señalizar","tránsito de personas","campo de trabajo"]},{"keywords":["colaborar","instalación","extinción","VA"]},{"keywords":["manejar","brazo","escalera","puesto de mando","plataforma"]}],"answer":"• Realizar la secuencia de la emisora y atender los requerimientos de comunicaciones de los intervinientes.\n• Ubicar correctamente el vehículo, con acceso a la zona de trabajo y fuera del riesgo de caída de objetos.\n• Esperar la orden de emplazamiento.\n• Balizar y señalizar para evitar el tránsito de personas por el campo de trabajo del VA.\n• Colaborar en la instalación para la extinción desde el VA.\n• Manejar el brazo o la escalera desde el puesto de mando de la plataforma."},{"procop":"1.05","version":"v1.2 · feb. 2025","role":"Movilización mínima · BCVA","type":"Material específico","facts":[{"keywords":["cinta de balizar","conos"]}],"answer":"• Cinta de balizar y conos."},{"procop":"1.06","version":"v1.2 · feb. 2025","role":"BC UEX","type":"Funciones","facts":[{"keywords":["secuencia","emisora"]},{"keywords":["requerimientos","comunicaciones","CECOM","equipos intervinientes"]},{"keywords":["manejo","ascensor de emergencia","cabina"]},{"keywords":["labores de logística","función secundaria"]}],"answer":"• Realizar la secuencia de la emisora y estar atento a los requerimientos de comunicaciones del CECOM y de los equipos intervinientes.\n• Manejar el ascensor de emergencia desde su cabina.\n• Realizar labores de logística como función secundaria."},{"procop":"1.06","version":"v1.2 · feb. 2025","role":"Dotación básica · Equipo 1 BUP-A (BZ1-BZ2)","type":"Funciones","facts":[{"keywords":["salvamento","rescate"]},{"keywords":["control","extinción","incendio"]},{"keywords":["ascensor de emergencia","puesto base"]},{"keywords":["manguera","45","columna seca","bifurcación","línea de ataque"]},{"keywords":["sin columna seca","una o dos plantas","puesto base"]},{"keywords":["cortina de humos","determine","CB BUP"]}],"answer":"• Realizar el salvamento y rescate, así como el control y la extinción del incendio.\n• Acceder con el Cabo mediante el ascensor de emergencia, si existe y ofrece garantías, y establecer el puesto base.\n• Conectar una línea de manguera de Ø45 mm a una salida de la columna seca, con bifurcación y línea de Ø38 mm con lanza Ø45 mm para el ataque.\n• Si no hay columna seca, realizar la línea de ataque desde una bifurcación situada una o dos plantas por debajo del incendio.\n• Colocar la cortina de humos cuando lo determine el CB BUP."},{"procop":"1.06","version":"v1.2 · feb. 2025","role":"Dotación básica · Equipo 1 BUP-A (BZ1-BZ2)","type":"Material específico","facts":[{"keywords":["Bolsa de Ataque 1","Bolsa de Ataque 2"]},{"keywords":["manguera","45"]},{"keywords":["cortina de humos"]},{"keywords":["visor térmico"]}],"answer":"• Bolsa de Ataque 1 y Bolsa de Ataque 2.\n• 1 manguera de Ø45 mm.\n• Cortina de humos.\n• Visor térmico."},{"procop":"1.06","version":"v1.2 · feb. 2025","role":"Dotación básica · Equipo 2 BUP-A (BZ3-BZ4)","type":"Funciones","facts":[{"keywords":["salvamento","rescate"]},{"keywords":["hornacina","columna seca","puesto de acometida","alimentación","llave de purga"]},{"keywords":["revisión","puesto base",["descendente","sentido descendente"],"ascensor de emergencia"]},{"keywords":["salidas","45","cerradas","llaves de seccionamiento","abiertas"]},{"keywords":["llave de seccionamiento","inmediatamente superior","puesto base","si la situación lo permite"]},{"keywords":["sin columna seca","45","hueco de escalera"]},{"keywords":["línea de reserva","necesario"]},{"keywords":["inspeccionar","caja de escalera","azotea","ascensores","viviendas","locales"]},{"keywords":["ventilación","terraza","huecos"]},{"keywords":["desconexión","gas","agua","eléctricas"]},{"keywords":["ventilador de presión positiva","suelo","resto de tareas"]}],"answer":"• Realizar el salvamento y rescate.\n• Localizar la hornacina adecuada de la columna seca y conectar desde el puesto de acometida el tramo de alimentación, cerrando la llave de purga.\n• Revisar la instalación desde el puesto base, preferentemente en sentido descendente con el ascensor de emergencia; si no se utiliza, revisar en sentido ascendente por la escalera.\n• Comprobar que las salidas de Ø45 mm anteriores al puesto base estén cerradas y que las llaves de seccionamiento de la columna estén abiertas.\n• Si la situación lo permite, cerrar la llave de seccionamiento inmediatamente superior al puesto base.\n• Si no hay columna seca, instalar mangueras de Ø45 mm preferentemente por el hueco de la escalera o, en su defecto, por fachada u otro elemento vertical.\n• Montar una línea de reserva si es necesario.\n• Inspeccionar la caja de escalera desde la planta del incendio hasta la azotea, bloquear los ascensores e inspeccionar las viviendas y locales afectados.\n• Preparar las acciones de ventilación y desconectar las instalaciones de gas, agua y electricidad desde las plantas o viviendas.\n• Bajar al suelo el ventilador de presión positiva del BUP antes de realizar el resto de tareas."},{"procop":"1.06","version":"v1.2 · feb. 2025","role":"Dotación básica · Equipo 2 BUP-A (BZ3-BZ4) · Instalación con columna seca","type":"Material específico","facts":[{"keywords":["manguera","45","plegada en doble","puesto de acometida","columna seca"]},{"keywords":["reducción","70/45"]},{"keywords":["2 mangueras","línea de reserva","necesario"]},{"keywords":["llave de cuadradillo"]}],"answer":"• 1 manguera de Ø45 mm plegada en doble para conectar el puesto de acometida a la columna seca.\n• 1 reducción 70/45.\n• 2 mangueras para la línea de reserva, en caso necesario.\n• Llave de cuadradillo."},{"procop":"1.06","version":"v1.2 · feb. 2025","role":"Dotación básica · Equipo 2 BUP-A (BZ3-BZ4) · Instalación con mangueras","type":"Material específico","facts":[{"keywords":["2 bolsas","instalación"]},{"keywords":["2 mangueras","línea de reserva","necesario"]}],"answer":"• 2 bolsas de instalación.\n• 2 mangueras para la línea de reserva, en caso necesario."},{"procop":"1.06","version":"v1.2 · feb. 2025","role":"Dotación básica · BC BUP-A","type":"Funciones","facts":[{"keywords":["secuencia","emisora","CECOM","equipos intervinientes"]},{"keywords":["vehículo","sobrepasando el portal","zona de trabajo","VA"]},{"keywords":["modo Pasarela","CECOM","canal"]},{"keywords":["bomba","presiones adecuadas"]},{"keywords":["salida de alta presión","tramo de acometida","puesto de acometida"]},{"keywords":["carrete de emergencia","toma de carga","sifón de alta"]},{"keywords":["comunicaciones","indicadores","bomba"]},{"keywords":["balizar","señalizar"]},{"keywords":["ventilador","portal","otro bombero"]},{"keywords":["iluminar","zona"]},{"keywords":["hidrantes","cercanos"]}],"answer":"• Realizar la secuencia de la emisora y atender los requerimientos de comunicaciones del CECOM y de los equipos intervinientes.\n• Ubicar el vehículo sobrepasando el portal, dejando una zona de trabajo entre la bomba y el portal y espacio libre junto a la fachada para emplazar el VA.\n• Poner la emisora en modo Pasarela, a petición del CECOM y en el canal que indique.\n• Conectar y manejar la bomba con las presiones adecuadas.\n• Iniciar la instalación desde la salida de alta presión, colocando el primer tramo de acometida y el punto de acometida.\n• Conectar el carrete de emergencia a la toma de carga para utilizarlo como sifón de alta.\n• Vigilar las comunicaciones y los indicadores de la bomba, y colocar la presión adecuada cuando proceda.\n• Balizar y señalizar; trasladar el ventilador al portal con ayuda de otro bombero si está disponible; iluminar la zona si procede y localizar los hidrantes más cercanos."},{"procop":"1.06","version":"v1.2 · feb. 2025","role":"Dotación básica · BC BUP-A","type":"Material específico","facts":[{"keywords":["manguera","45","plegada en doble","tramo de acometida"]},{"keywords":["bifurcación","70/45","reducción"]},{"keywords":["cinta de balizar","conos"]}],"answer":"• Manguera de Ø45 mm plegada en doble para el tramo de acometida.\n• Bifurcación 70/45 y reducción.\n• Cinta de balizar y conos."},{"procop":"1.06","version":"v1.2 · feb. 2025","role":"Equipo VA >30 m · CB VA / BZ1 VA-BZ2 VA","type":"Funciones","facts":[{"keywords":["colaborar","ubicación","vehículo"]},{"keywords":["balizamiento","señalización","tránsito de personas"]},{"keywords":["manejar","VA","puesto de cesta"]},{"keywords":["alimentación exterior","puesto de acometida","VA"]},{"keywords":["rescate","extinción","protección de fachada"]},{"keywords":["instalación vertical","fachada"]},{"keywords":["labores de logística"]}],"answer":"• Colaborar en la correcta ubicación del vehículo y en el balizamiento y señalización para evitar el tránsito de personas por el campo de trabajo del VA.\n• Manejar el VA desde el puesto de cesta.\n• Realizar el tramo de alimentación exterior desde el puesto de acometida hasta el VA.\n• Realizar acciones de rescate, extinción o protección de fachada desde el exterior.\n• Como tareas secundarias, colaborar en una posible instalación vertical por fachada y realizar labores de logística."},{"procop":"1.06","version":"v1.2 · feb. 2025","role":"Equipo VA >30 m · CB VA / BZ1 VA-BZ2 VA","type":"Material específico","facts":[{"keywords":["mangueras","45","plegada en doble","alimentación","VA"]},{"keywords":["Bolsa de Ataque VA"]}],"answer":"• Mangueras de Ø45 mm plegadas en doble para montar el tramo de alimentación al VA.\n• Bolsa de Ataque VA."},{"procop":"1.06","version":"v1.2 · feb. 2025","role":"BC VA >30 m","type":"Funciones","facts":[{"keywords":["secuencia","emisora","requerimientos","comunicaciones"]},{"keywords":["ubicar","vehículo","zona de trabajo","caída de objetos"]},{"keywords":["esperar","orden de emplazamiento"]},{"keywords":["balizar","señalizar","tránsito de personas","campo de trabajo"]},{"keywords":["colaborar","instalación","extinción","VA"]},{"keywords":["manejar","brazo","escalera","puesto de mando","plataforma"]}],"answer":"• Realizar la secuencia de la emisora y atender los requerimientos de comunicaciones de los intervinientes.\n• Ubicar el vehículo correctamente, con acceso a la zona de trabajo y fuera del riesgo de caída de objetos.\n• Esperar la orden de emplazamiento.\n• Balizar y señalizar para evitar el tránsito de personas por el campo de trabajo del VA.\n• Colaborar en la instalación para la extinción desde el VA.\n• Manejar el brazo o la escalera desde el puesto de mando de la plataforma."},{"procop":"1.06","version":"v1.2 · feb. 2025","role":"BC VA >30 m","type":"Material específico","facts":[{"keywords":["cinta de balizar","conos"]}],"answer":"• Cinta de balizar y conos."},{"procop":"1.06","version":"v1.2 · feb. 2025","role":"Equipo BNL · BC BNL","type":"Funciones","facts":[{"keywords":["secuencia","emisora","requerimientos","comunicaciones"]},{"keywords":["vehículo","correcta","segura"]},{"keywords":["suministro de agua","hidrante","más próximo"]},{"keywords":["acometida","alimentación complementaria","columna seca","sin presurizar"]},{"keywords":["abastecimiento","BUP-A"]},{"keywords":["comunicaciones","indicadores","bomba"]},{"keywords":["presión adecuada"]},{"keywords":["colaborar","BC del BUP"]},{"keywords":["balizar","señalizar"]}],"answer":"• Realizar la secuencia de la emisora y atender los requerimientos de comunicaciones de los intervinientes.\n• Ubicar el vehículo de forma correcta y segura y asegurar el suministro de agua desde el hidrante más próximo.\n• Preparar el tramo de acometida o alimentación complementaria a la columna seca, sin presurizar, y el tramo de abastecimiento al BUP-A.\n• Atender las comunicaciones y los indicadores de la bomba, colocar la presión adecuada cuando proceda, colaborar con el BC del BUP y balizar y señalizar."},{"procop":"1.06","version":"v1.2 · feb. 2025","role":"Equipo BNL · BZ BNL","type":"Funciones","facts":[{"keywords":["instalación","abastecimiento","hidrante","más próximo"]},{"keywords":["colaborar","BC","suministro de agua"]},{"keywords":["labores de logística","función secundaria"]}],"answer":"• Realizar la instalación del tramo de abastecimiento desde el hidrante más próximo.\n• Colaborar en las funciones de los BC para el suministro de agua.\n• Realizar labores de logística como función secundaria."},{"procop":"1.06","version":"v1.2 · feb. 2025","role":"Equipo BNL · BC BNL / BZ BNL","type":"Material específico","facts":[{"keywords":["elementos hidráulicos",["acometida","alimentación complementaria"],"columna seca","abastecimiento"]}],"answer":"• Elementos hidráulicos para realizar los tramos de acometida o alimentación complementaria a la columna seca y de abastecimiento."},{"procop":"1.06","version":"v1.2 · feb. 2025","role":"Dotación ampliada · Equipos 1 y 2 BUP-B (BZ1-BZ4)","type":"Funciones","facts":[{"keywords":["instalación hidráulica","reserva"]},{"keywords":["ascensor de emergencia","hueco de escalera","desde el puesto base","sentido descendente"]},{"keywords":["sin ascensor de emergencia","instalación","sentido ascendente","hueco de escalera"]},{"keywords":["asegurar","rácores","cordinos","barandillas"]},{"keywords":["bolsa de instalación","mangueras","tramos"]},{"keywords":["sin bolsas de instalación","mangueras sueltas"]},{"keywords":["instalación vertical","fachada","elemento vertical"]},{"keywords":["apoyo","rescate","extinción"]}],"answer":"• Realizar la instalación hidráulica de reserva.\n• Si se accede con ascensor de emergencia y hay hueco de escalera, tender la instalación de Ø45 mm desde el puesto base en sentido descendente por el hueco.\n• Si no se accede con el ascensor, tender la instalación de Ø45 mm en sentido ascendente por el hueco de escalera, si lo permite, asegurando los rácores a la barandilla con cordinos o cintas.\n• Los equipos 1 y 2 continúan el tendido por tramos con bolsas de instalación; si no se dispone de ellas, transportan las mangueras sueltas.\n• Si no se puede instalar por el hueco de escalera, realizar una instalación vertical por fachada u otro elemento vertical.\n• Apoyar en las labores de rescate y extinción."},{"procop":"1.06","version":"v1.2 · feb. 2025","role":"Dotación ampliada · Equipos 1 y 2 BUP-B (BZ1-BZ4)","type":"Material específico","facts":[{"keywords":["bolsas de instalación"]},{"keywords":["mangueras","función de la altura"]}],"answer":"• Bolsas de instalación y mangueras en función de la altura."},{"procop":"1.06","version":"v1.2 · feb. 2025","role":"Dotación ampliada · BC BUP-B","type":"Funciones","facts":[{"keywords":["secuencia","emisora","CECOM","equipos intervinientes"]},{"keywords":["ubicar","vehículo"]},{"keywords":["bomba","presiones adecuadas"]},{"keywords":["salida de alta presión","tramo de acometida","puesto de acometida"]},{"keywords":["carrete de emergencia","toma de carga","sifón de alta"]},{"keywords":["comunicaciones","indicadores","bomba"]},{"keywords":["balizar","señalizar"]},{"keywords":["iluminar","zona"]},{"keywords":["ventilador","portal","otro bombero"]},{"keywords":["hidrantes","cercanos"]}],"answer":"• Realizar la secuencia de la emisora y atender los requerimientos de comunicaciones del CECOM y de los equipos intervinientes.\n• Ubicar correctamente el vehículo y conectar y manejar la bomba con las presiones adecuadas.\n• Iniciar la instalación desde la salida de alta presión, colocando el primer tramo de acometida y el punto de acometida.\n• Conectar el carrete de emergencia a la toma de carga para utilizarlo como sifón de alta.\n• Atender las comunicaciones y los indicadores de la bomba; colocar la presión adecuada cuando proceda.\n• Balizar y señalizar, iluminar si procede, trasladar el ventilador al portal con ayuda de otro bombero si está disponible y localizar los hidrantes más cercanos."},{"procop":"1.06","version":"v1.2 · feb. 2025","role":"Dotación ampliada · BC BUP-B","type":"Material específico","facts":[{"keywords":["manguera","45","plegada en doble","tramo de acometida"]},{"keywords":["bifurcación","70/45","reducción"]}],"answer":"• Manguera de Ø45 mm plegada en doble para el tramo de acometida.\n• Bifurcación 70/45 y reducción."},{"procop":"1.06","version":"v1.2 · feb. 2025","role":"Equipo AMB · ENF - BC AMB","type":"Funciones","facts":[{"keywords":["secuencia","emisora","requerimientos","comunicaciones"]},{"keywords":["vehículo","salida rápida","libre de obstáculos","traslado hospitalario"]},{"keywords":["esperar","orden de actuación","mando"]},{"keywords":["valorar","asistencia sanitaria"]},{"keywords":["traslados hospitalarios"]}],"answer":"• Realizar la secuencia de la emisora y atender los requerimientos de comunicaciones de los equipos intervinientes.\n• Ubicar el vehículo correctamente, con salida rápida y libre de obstáculos para un posible traslado hospitalario.\n• Esperar la orden de actuación del mando.\n• Valorar y prestar asistencia sanitaria.\n• Realizar los traslados hospitalarios."},{"procop":"1.06","version":"v1.2 · feb. 2025","role":"Equipo AMB · ENF - BC AMB","type":"Material específico","facts":[{"keywords":["mochila","material sanitario"]}],"answer":"• Mochila de material sanitario."},{"procop":"1.07","version":"v1.3 · feb. 2025","role":"Movilización mínima · Equipo 1 BUP-A (BZ1-BZ2)","type":"Funciones","facts":[{"keywords":[["cuerda guía","cuerda guia"],"zona limpia","puesto base",["equipo SOS preparado","SOS preparado"]]},{"keywords":["salvamento"]},{"keywords":[["localizar el foco","localización del foco"],["extinguir","extinción"]]}],"answer":"• Iniciar e instalar la cuerda guía en zona limpia, desde el puesto base; solo iniciar las tareas si hay un Equipo SOS preparado.\n• Realizar el salvamento.\n• Localizar el foco y/o extinguir."},{"procop":"1.07","version":"v1.3 · feb. 2025","role":"Movilización mínima · Equipo 1 BUP-A (BZ1-BZ2)","type":"Material específico","facts":[{"keywords":["visor térmico"]},{"keywords":[["cuerdas guía","cuerda guía"]]},{"keywords":["material de apertura"]},{"keywords":["bolsas de ataque 1 y 2","bolsas de ataque"]}],"answer":"• Visor térmico.\n• Cuerdas guía.\n• Material de apertura.\n• Bolsas de ataque 1 y 2, que se depositan en el puesto base."},{"procop":"1.07","version":"v1.3 · feb. 2025","role":"Movilización mínima · Equipo 2 BUP-A (BZ3-BZ4) · Instalación con mangueras","type":"Funciones","facts":[{"keywords":["bajar","ventilador","antes","resto de tareas"]},{"keywords":[["tramo de alimentación interior","alimentación interior"],"puesto base",["45 mm","45mm","o45 mm","o45mm"],"bifurcación","bolsa de ataque"]},{"keywords":["línea de ataque",["línea de reserva","reserva"],["cuando sea necesaria","si es necesaria"]]},{"keywords":["salvamento"]},{"keywords":[["localizar el foco","localización del foco"],["extinguir","extinción"]]}],"answer":"• Bajar al suelo el ventilador de presión positiva del BUP antes de realizar el resto de tareas.\n• Instalar el tramo de alimentación interior de Ø45 mm hasta el puesto base, conectándolo a la bifurcación de la bolsa de ataque.\n• Montar la línea de ataque y la línea de reserva cuando sea necesaria.\n• Realizar el salvamento.\n• Localizar el foco y/o extinguir."},{"procop":"1.07","version":"v1.3 · feb. 2025","role":"Movilización mínima · Equipo 2 BUP-A (BZ3-BZ4) · Instalación con mangueras","type":"Material específico","facts":[{"keywords":["mangueras",["45 mm","45mm","o45 mm","o45mm"],"tramo de alimentación interior"]},{"keywords":[["38 mm","38mm","o38 mm","o38mm"],"línea de ataque","distancia",["lo permita","permita"]]},{"keywords":[["45 mm","45mm","o45 mm","o45mm"],"bolsas de instalación","línea de ataque"]}],"answer":"• Una o varias mangueras de Ø45 mm para el tramo de alimentación interior hasta el puesto base.\n• Mangueras de Ø38 mm para la línea de ataque cuando la distancia desde el puesto base lo permita.\n• Si la ubicación del incendio no permite usar Ø38 mm, emplear las mangueras de Ø45 mm de las bolsas de instalación."},{"procop":"1.07","version":"v1.3 · feb. 2025","role":"Movilización mínima · Equipo 2 BUP-A (BZ3-BZ4) · Instalación con columna seca","type":"Funciones","facts":[{"keywords":["bajar","ventilador","antes","resto de tareas"]},{"keywords":["localizar","hornacina","columna seca"]},{"keywords":["puesto de acometida","tramo de alimentación","columna seca","llave de purga"]},{"keywords":["línea de ataque",["línea de reserva","reserva"],["cuando sea necesaria","si es necesaria"]]},{"keywords":["salidas",["45 mm","45mm","o45 mm","o45mm"],"cerradas"]},{"keywords":["salvamento"]},{"keywords":[["localizar el foco","localización del foco"],["extinguir","extinción"]]}],"answer":"• Bajar al suelo el ventilador de presión positiva del BUP antes de realizar el resto de tareas.\n• Localizar la hornacina adecuada de la columna seca.\n• Conectar desde el puesto de acometida el tramo de alimentación a la columna seca, cerrando la llave de purga.\n• Montar la línea de ataque y la línea de reserva cuando sea necesaria.\n• Revisar que las salidas de Ø45 mm estén cerradas.\n• Realizar el salvamento.\n• Localizar el foco y/o extinguir."},{"procop":"1.07","version":"v1.3 · feb. 2025","role":"Movilización mínima · Equipo 2 BUP-A (BZ3-BZ4) · Instalación con columna seca","type":"Material específico","facts":[{"keywords":[["45 mm","45mm","o45 mm","o45mm"],"conectar","columna seca"]},{"keywords":["bolsa de instalación",["45 mm","45mm","o45 mm","o45mm"],"plegadas en palmera","línea de ataque"]},{"keywords":["llave de cuadradillo"]}],"answer":"• Mangueras de Ø45 mm para conectar el tramo de alimentación a la columna seca.\n• Bolsa de instalación o mangueras de Ø45 mm plegadas en palmera para iniciar la línea de ataque.\n• Llave de cuadradillo."},{"procop":"1.07","version":"v1.3 · feb. 2025","role":"Movilización mínima · Equipos 1 y 2 BUP-B (BZ1-BZ2 / BZ3-BZ4)","type":"Funciones","facts":[{"keywords":["formar","equipo SOS","llegada al servicio"]},{"keywords":["permanecer","punto de control","órdenes","Cabo","BUP-B"]},{"keywords":[["apoyar","apoyo"],"tareas","equipos","BUP-A"]}],"answer":"• Formar el Equipo SOS desde el momento de la llegada al servicio.\n• Permanecer en el Punto de Control a las órdenes del Cabo del BUP-B.\n• Apoyar las tareas realizadas por los equipos del BUP-A."},{"procop":"1.07","version":"v1.3 · feb. 2025","role":"Movilización mínima · Equipos 1 y 2 BUP-B (BZ1-BZ2 / BZ3-BZ4)","type":"Material específico","facts":[{"keywords":["visor térmico"]},{"keywords":[["cuerdas guía","cuerda guía"]]}],"answer":"• Visor térmico.\n• Cuerdas guía."},{"procop":"1.07","version":"v1.3 · feb. 2025","role":"Movilización mínima · Equipo VA (CBVA/BZ1VA-BZ2VA)","type":"Funciones","facts":[{"keywords":["colaborar","correcta ubicación","vehículo"]},{"keywords":["balizamiento","señalización","evitar","tránsito de personas","campo de trabajo"]},{"keywords":["brazo","escalera","puesto de la cesta"]},{"keywords":["tramo de alimentación exterior","puesto de acometida","extinción","VA"]},{"keywords":["rescate","extinción","exterior","protección de fachada"]},{"keywords":["a disposición","mando","intervención","VA"]}],"answer":"• Colaborar en la correcta ubicación del vehículo.\n• Colaborar en el balizamiento y la señalización para evitar el tránsito de personas en el campo de trabajo del VA.\n• Manejar el brazo o la escalera desde el puesto de la cesta.\n• Realizar el tramo de alimentación exterior desde el puesto de acometida para extinguir desde el VA.\n• Realizar acciones de rescate o extinción desde el exterior, o de protección de fachada.\n• Quedar a disposición del mando de la intervención si no hay tareas que realizar con el VA."},{"procop":"1.07","version":"v1.3 · feb. 2025","role":"Movilización mínima · Equipo VA (CBVA/BZ1VA-BZ2VA)","type":"Material específico","facts":[{"keywords":[["25 mm","25mm","o25 mm","o25mm"],"plegada en doble","tramo de alimentación exterior"]},{"keywords":["reducción","45/25"]},{"keywords":["bolsa de ataque VA"]}],"answer":"• Manguera de Ø25 mm plegada en doble para montar el tramo de alimentación exterior.\n• Reducción 45/25.\n• Bolsa de Ataque VA."},{"procop":"1.07","version":"v1.3 · feb. 2025","role":"Movilización mínima · Equipo AMB (BC AMB-ENF)","type":"Funciones","facts":[{"keywords":["secuencia","emisora","requerimientos","comunicaciones"]},{"keywords":["ubicar","vehículo","salida rápida","libre de obstáculos","traslado hospitalario"]},{"keywords":["esperar","orden de actuación","mando"]},{"keywords":["valorar","asistencia sanitaria","prehospitalaria"]},{"keywords":["traslados hospitalarios"]}],"answer":"• Realizar la secuencia de la emisora y atender los requerimientos de comunicaciones de los intervinientes.\n• Ubicar el vehículo correctamente, con salida rápida y libre de obstáculos para un posible traslado hospitalario.\n• Esperar la orden de actuación del mando.\n• Valorar y prestar asistencia sanitaria prehospitalaria.\n• Realizar los traslados hospitalarios."},{"procop":"1.07","version":"v1.3 · feb. 2025","role":"Movilización mínima · Equipo AMB (BC AMB-ENF)","type":"Material específico","facts":[{"keywords":["mochila","material sanitario"]}],"answer":"• Mochila de material sanitario."},{"procop":"1.07","version":"v1.3 · feb. 2025","role":"Movilización mínima · BC BUP-A","type":"Funciones","facts":[{"keywords":["secuencia","emisora","requerimientos","CECOM","comunicaciones"]},{"keywords":["ubicar","vehículo","sobrepasando","portal","zona de trabajo","VA"]},{"keywords":["modo Pasarela","CECOM","canal"]},{"keywords":["checking","tabla de control",["llegada","hasta la llegada"],"BC","BUP-B"]},{"keywords":["conectar","bomba","presiones adecuadas"]},{"keywords":["salida",["45 mm","45mm","o45 mm","o45mm"],"baja presión","tramo de acometida","punto de acometida"]},{"keywords":["comunicaciones","indicadores","bomba"]},{"keywords":["balizar","señalizar"]},{"keywords":["trasladar","ventilador","otro bombero"]},{"keywords":["iluminar"]},{"keywords":["hidrantes","cercanos"]}],"answer":"• Realizar la secuencia de la emisora y atender los requerimientos de comunicaciones de los intervinientes y del CECOM.\n• Ubicar el vehículo sobrepasando el portal del local afectado, dejando zona de trabajo entre la bomba y el acceso y espacio libre junto a la fachada para emplazar el VA.\n• Colocar la emisora en modo Pasarela a petición del CECOM y en el canal indicado.\n• Realizar el checking y manejar la tabla de control hasta la llegada del BC del BUP-B.\n• Conectar la bomba y manejarla con las presiones adecuadas.\n• Iniciar la instalación desde la salida de Ø45 mm de baja presión, colocar una manguera de Ø45 mm para el tramo de acometida y situar el punto de acometida.\n• Atender las comunicaciones y los indicadores de la bomba.\n• Balizar y señalizar.\n• Trasladar el ventilador con la colaboración de otro bombero, según disponibilidad.\n• Iluminar si procede.\n• Localizar los hidrantes más cercanos."},{"procop":"1.07","version":"v1.3 · feb. 2025","role":"Movilización mínima · BC BUP-A","type":"Material específico","facts":[{"keywords":[["45 mm","45mm","o45 mm","o45mm"],"plegada en doble","tramo de acometida"]},{"keywords":["bifurcación","70/45","reducción"]},{"keywords":["cinta de balizar","conos"]}],"answer":"• Manguera de Ø45 mm plegada en doble para el tramo de acometida.\n• Bifurcación 70/45 y reducción.\n• Cinta de balizar y conos."},{"procop":"1.07","version":"v1.3 · feb. 2025","role":"Movilización mínima · BC BUP-B","type":"Funciones","facts":[{"keywords":["secuencia","emisora","requerimientos","comunicaciones"]},{"keywords":["ubicar","vehículo","correctamente"]},{"keywords":["checking","tabla de control","llegada al servicio"]},{"keywords":["a disposición","mando","intervención"]}],"answer":"• Realizar la secuencia de la emisora y atender los requerimientos de comunicaciones de los intervinientes.\n• Ubicar correctamente el vehículo.\n• Realizar el checking y manejar la tabla de control desde la llegada al servicio.\n• Quedar a disposición del mando de la intervención."},{"procop":"1.07","version":"v1.3 · feb. 2025","role":"Movilización mínima · BCVA","type":"Funciones","facts":[{"keywords":["secuencia","emisora","requerimientos","comunicaciones"]},{"keywords":["ubicar","vehículo","acceso","zona de trabajo","caída de objetos"]},{"keywords":["esperar","orden de emplazamiento"]},{"keywords":["balizar","señalizar","tránsito de personas","campo de trabajo"]},{"keywords":["colaborar","instalación","extinción","VA"]},{"keywords":["brazo","escalera","puesto de mando","plataforma"]}],"answer":"• Realizar la secuencia de la emisora y atender los requerimientos de comunicaciones de los intervinientes.\n• Ubicar el vehículo con acceso a la zona de trabajo y fuera del riesgo de caída de objetos.\n• Esperar la orden de emplazamiento.\n• Balizar y señalizar para evitar el tránsito de personas en el campo de trabajo del VA.\n• Colaborar en la instalación para la extinción desde el VA.\n• Manejar el brazo o la escalera desde el puesto de mando de la plataforma."},{"procop":"3.01","version":"v1 · nov. 2018","role":"Equipo 1 BUP · BZ1/BFS","type":"Funciones","facts":[{"keywords":["atención psicológica","posible atrapamiento","CB","colaborar","DUE"]},{"keywords":["primer contacto visual","verbal","valoración primaria","ABCD","CB"]},{"keywords":["colocar","collarín","BZ2","valoración secundaria","primeros auxilios","CB"]},{"keywords":["plástico cubre-víctimas","permanecer","víctima"]},{"keywords":["evolución","estado","víctima","CB"]},{"keywords":["control cervical","collarín"]},{"keywords":["movilizar","víctima","tabla","extracción"]}],"answer":"• Si hay DUE, prestar atención psicológica, informar al CB del posible atrapamiento de la víctima y colaborar con el DUE.\n• Si no hay DUE, realizar el primer contacto visual y verbal, una valoración primaria ABCD e informar al CB.\n• Si no hay DUE, colocar el collarín con ayuda del BZ2 si procede, realizar la valoración secundaria e informar al CB, y prestar primeros auxilios.\n• Cubrir a la víctima con el plástico cubre-víctimas y permanecer con ella.\n• Informar al CB de la evolución del estado de la víctima.\n• Mantener, si es posible, el control cervical incluso después de colocar el collarín.\n• Movilizar a la víctima y utilizar la tabla para su extracción."},{"procop":"3.01","version":"v1 · nov. 2018","role":"Equipo 1 BUP · BZ2","type":"Funciones","facts":[{"keywords":["crear","acceso","interior","asistir","víctima","comprobar","puertas","ventanillas"]},{"keywords":["llave de contacto","CB"]},{"keywords":["riesgos internos","airbags",["pretensor","pretensores"],"CB"]},{"keywords":[["protector airbag","protector del airbag"],"conductor"]},{"keywords":["crear","espacios interiores","corte controlado","cinturón de seguridad"]},{"keywords":["colaborar","BZ1","equipo 2"]},{"keywords":["movilizar","víctima","tabla","extracción"]}],"answer":"• Crear el acceso al interior del vehículo para asistir a la víctima; comprobar si abren las puertas y si pueden bajarse las ventanillas.\n• Retirar la llave de contacto y entregársela al CB.\n• Informar al CB de los riesgos internos, como airbags y pretensores del cinturón.\n• Colocar el protector del airbag del conductor si procede.\n• Crear espacios interiores y realizar el corte controlado del cinturón de seguridad.\n• Colaborar con el BZ1/BFS si no hay DUE y con el Equipo 2 cuando se requiera.\n• Movilizar a la víctima y utilizar la tabla para su extracción."},{"procop":"3.01","version":"v1 · nov. 2018","role":"Equipo 2 BUP · BZ3-BZ4","type":"Funciones","facts":[{"keywords":[["control","controlar"],"riesgos","derrames","eléctrico"]},{"keywords":["incendio",["extinción","extinguir"]]},{"keywords":[["desconexión","desconectar"],"batería"]},{"keywords":["estabilización","vehículo","reestabilizaciones"]},{"keywords":[["montaje","montar"],"puesto base","equipo hidráulico","auxiliar","CB"]},{"keywords":["tratamiento","cristales"]},{"keywords":["crear espacios exteriores","despanelar","puntos de corte"]},{"keywords":["proteger","cortes"]},{"keywords":["movilizar","víctima","tabla","extracción"]}],"answer":"• Controlar los riesgos, incluidos derrames y riesgos eléctricos.\n• Extinguir cualquier incendio.\n• Desconectar la batería si se tiene acceso a ella.\n• Realizar la estabilización inicial del vehículo y las reestabilizaciones posteriores.\n• Montar en el puesto base el equipo hidráulico y el equipo auxiliar cuando lo requiera el CB.\n• Realizar el tratamiento de cristales.\n• Crear espacios exteriores: despanelar e identificar y marcar los puntos de corte.\n• Proteger los cortes realizados.\n• Movilizar a la víctima y utilizar la tabla para su extracción."},{"procop":"3.01","version":"v1 · nov. 2018","role":"Equipo AMB · DUE","type":"Funciones","facts":[{"keywords":["atención psicológica"]},{"keywords":["primer contacto","visual","verbal","víctima"]},{"keywords":["valoración primaria","ABCD","informar","CB"]},{"keywords":["collarín","BZ1"]},{"keywords":["valoración secundaria","informar","mando"]},{"keywords":["primeros auxilios","actuaciones sanitarias"]},{"keywords":["evolución","estado","víctima","mando"]}],"answer":"• Prestar atención psicológica.\n• Realizar el primer contacto visual y verbal con la víctima.\n• Realizar una valoración primaria ABCD e informar al CB de su resultado.\n• Colocar el collarín si se considera conveniente, con ayuda del BZ1.\n• Realizar una valoración secundaria e informar al mando de su resultado.\n• Prestar primeros auxilios y realizar las actuaciones sanitarias necesarias.\n• Informar al mando de la evolución del estado de la víctima."},{"procop":"3.01","version":"v1 · nov. 2018","role":"Equipo AMB · BCAMB","type":"Funciones","facts":[{"keywords":["estacionar","salida rápida"]},{"keywords":["aportar","material","DUE"]},{"keywords":["trasladar","víctima","puesto de camilla","AMB"]},{"keywords":["a disposición","DUE"]}],"answer":"• Estacionar el vehículo orientado para una salida rápida.\n• Aportar el material solicitado por el DUE.\n• Trasladar a la víctima desde el puesto de camilla hasta la AMB.\n• Permanecer a disposición del DUE."},{"procop":"3.01","version":"v1 · nov. 2018","role":"BC BUP","type":"Funciones","facts":[{"keywords":["estacionamiento defensivo"]},{"keywords":["secuencia","emisora","CECOM"]},{"keywords":["modo Pasarela","CECOM","canal"]},{"keywords":["conectar","manejar","bomba","presiones adecuadas"]},{"keywords":["instalación","25 mm","presurizada","puesto base"]},{"keywords":["extintor","polvo","CO2","puesto base"]},{"keywords":["iluminación","balizamiento"]},{"keywords":["colaborar","Equipo 2","material"]}],"answer":"• Realizar el estacionamiento defensivo.\n• Realizar la secuencia de la emisora y atender los requerimientos de comunicaciones del CECOM.\n• Poner la emisora en modo Pasarela, a petición del CECOM y en el canal indicado.\n• Conectar y manejar la bomba con las presiones adecuadas.\n• Montar junto al puesto base una instalación presurizada de 25 mm.\n• Colocar junto al puesto base un extintor de polvo y otro de CO2.\n• Realizar la iluminación y el balizamiento si procede.\n• Colaborar con el Equipo 2 aportando material."},{"procop":"3.01","version":"v1 · nov. 2018","role":"BC UEX","type":"Funciones","facts":[{"keywords":["estacionamiento defensivo"]},{"keywords":["secuencia","emisora"]},{"keywords":["balizar","BC FSV","BC BUP"]},{"keywords":["a disposición","SG"]}],"answer":"• Realizar el estacionamiento defensivo.\n• Realizar la secuencia de la emisora.\n• Si procede, balizar la zona en colaboración con el BC FSV o el BC BUP.\n• Permanecer a disposición del SG."},{"procop":"3.01","version":"v1 · nov. 2018","role":"BC FSV","type":"Funciones","facts":[{"keywords":["estacionamiento defensivo"]},{"keywords":["secuencia","emisora"]},{"keywords":["iluminación"]},{"keywords":["balizar","BC UEX","BC BUP"]},{"keywords":["a disposición","SG"]}],"answer":"• Realizar el estacionamiento defensivo.\n• Realizar la secuencia de la emisora.\n• Realizar la iluminación si procede.\n• Si procede, balizar la zona en colaboración con el BC UEX o el BC BUP.\n• Permanecer a disposición del SG."},{"procop":"3.01","version":"v1 · nov. 2018","role":"BZ FSV","type":"Funciones","facts":[{"keywords":["requiera","mando","colaborar","Equipo 2"]},{"keywords":["manejar","tabla de rescate"]},{"keywords":["a disposición","SG"]}],"answer":"• Colaborar con el Equipo 2 cuando lo requiera el mando.\n• Manejar la tabla de rescate.\n• Permanecer a disposición del SG."},{"procop":"3.02","version":"v0.1 · dic. 2020","role":"BZ1 BUL/BUP","type":"Funciones","facts":[{"keywords":["contacto verbal","pasajeros","tranquilizarlos"]},{"keywords":["informarles","evacuación","maniobras","sacudidas"]},{"keywords":["informado","CB","estado","pasajeros"]},{"keywords":["a las órdenes","CB","ubicación","cabina"]},{"keywords":["cabina","nivelada","abrir","puertas","evacuar"]},{"keywords":["comunicar","CB","finalización","rescate","mantener","pasajeros","recopilar sus datos"]}],"answer":"• Establecer contacto verbal con los pasajeros, tranquilizarlos y mantener su atención.\n• Informarles de la evacuación y de las maniobras que se realizarán, especialmente de las posibles sacudidas en la maniobra manual de emergencia.\n• Mantener informado al CB del estado de los pasajeros y de cualquier cambio.\n• Estar a las órdenes del CB e informar de la ubicación de la cabina durante su nivelación.\n• Cuando la cabina esté nivelada, abrir las puertas y evacuar a los pasajeros.\n• Comunicar al CB la finalización del rescate y mantener a los pasajeros rescatados disponibles para recopilar sus datos."},{"procop":"3.02","version":"v0.1 · dic. 2020","role":"BZ2 BUL/BUP","type":"Funciones","facts":[{"keywords":["acompañar","CB","inspección"]},{"keywords":["acceder","CB","cuarto de máquinas"]},{"keywords":["realizar","maniobra elegida"]}],"answer":"• Acompañar al CB durante la inspección previa.\n• Acceder junto al CB al cuarto de máquinas del ascensor.\n• Realizar la maniobra elegida."},{"procop":"3.02","version":"v0.1 · dic. 2020","role":"BC BUL/BUP","type":"Funciones","facts":[{"keywords":["secuencia","emisora","CECOM","CB"]},{"keywords":["ubicar","vehículo","próxima","acceso","edificio"]},{"keywords":["localizar","presidente","comunidad"]},{"keywords":["facilite","acceso","cuarto de máquinas","comunicar","CB"]}],"answer":"• Realizar la secuencia de la emisora y atender los requerimientos de comunicaciones del CECOM y del CB.\n• Ubicar correctamente el vehículo en una zona próxima al acceso del edificio.\n• Cuando lo requiera el mando, localizar al presidente de la comunidad o a otra persona que facilite el acceso al cuarto de máquinas.\n• Comunicar al CB la información de contacto y acceso obtenida."},{"procop":"3.02","version":"v0.1 · dic. 2020","role":"BZ3-BZ4 BUP (si se moviliza BUP)","type":"Funciones","facts":[{"keywords":["a disposición","CB","cualquier tarea"]}],"answer":"• Si se moviliza un BUP, permanecer a disposición del CB para cualquier tarea."},{"procop":"3.02","version":"v0.1 · dic. 2020","role":"Equipo AMB (si se moviliza) · BC/DUE","type":"Funciones","facts":[{"keywords":["conductor","secuencia","emisora"]},{"keywords":["ubicar","vehículo","salida rápida","libre de obstáculos"]},{"keywords":["esperar","orden","mando"]},{"keywords":["asistencia sanitaria","cuando se requiera"]},{"keywords":["traslado hospitalario","procede"]}],"answer":"• El conductor debe realizar la secuencia de la emisora.\n• Ubicar el vehículo AMB de forma apropiada, con una salida rápida y libre de obstáculos para un posible traslado hospitalario.\n• Esperar la orden de actuación del mando.\n• El DUE debe prestar asistencia sanitaria cuando se requiera.\n• Realizar el traslado hospitalario si procede."},{"procop":"3.02","version":"v0.1 · dic. 2020","role":"Equipo FSV (si se moviliza) · BC/BZ","type":"Funciones","facts":[{"keywords":["esperar","orden","mando"]},{"keywords":["realizar","maniobra elegida"]},{"keywords":["a disposición","CB"]}],"answer":"• Esperar la orden de actuación del mando.\n• Realizar la maniobra elegida o asignada.\n• Permanecer a disposición del CB."},{"procop":"1.07","version":"v1.3 · feb. 2025","role":"Movilización mínima · BCVA","type":"Material específico","facts":[{"keywords":["cinta de balizar","conos"]}],"answer":"• Cinta de balizar y conos."},{"procop":"3.03","version":"v0.4 · mar. 2022","role":"BCUEX","type":"Funciones","facts":[{"keywords":["secuencia","emisora","comunicaciones"]},{"keywords":["controlar","accesos","zona caliente","colaboración policial"]},{"keywords":["información","Sargento","presunto suicida"]},{"keywords":["instalación","colchón de salvamento"]},{"keywords":["disposición","SG","tarea"]}],"answer":"• Introducir la secuencia en la emisora y atender los requerimientos de comunicaciones.\n• Controlar los accesos a la zona caliente, si se requiere, solicitando colaboración policial.\n• Colaborar con el Sargento en la obtención de información sobre el presunto suicida.\n• Colaborar en la instalación del colchón de salvamento, si es posible.\n• Permanecer a disposición del SG para cualquier otra tarea que se le encomiende."},{"procop":"3.03","version":"v0.4 · mar. 2022","role":"Equipo 1 BUP · BZ1BUP-BZ2BUP","type":"Funciones","facts":[{"keywords":["acceder","CB","puesto base"]},{"keywords":["acercarse","PCS","puesto base"]},{"keywords":["mediar","desistimiento","conducta suicida"]},{"keywords":["funciones SOS"]},{"keywords":["contención de emergencia","situación","requiera"]},{"keywords":["acompañar","asistencia sanitaria","psicológica"]}],"answer":"• Acceder junto al CB al puesto base.\n• Acercarse a la ubicación de la PCS desde el puesto base.\n• Mediar con la PCS para lograr el desistimiento de la conducta suicida.\n• Asumir las funciones SOS.\n• Realizar la contención de emergencia de la PCS cuando la situación lo requiera.\n• Acompañar a la PCS hasta la asistencia sanitaria y/o psicológica."},{"procop":"3.03","version":"v0.4 · mar. 2022","role":"Equipo 2 BUP · BZ3BUP-BZ4BUP","type":"Funciones","facts":[{"keywords":["acceder","CB","puesto base"]},{"keywords":["montar","manejar","instalación de seguridad","Equipo 1","riesgo de caída"]},{"keywords":["recopilar","información adicional"]},{"keywords":["colaborar","contención"]},{"keywords":["funciones","equipo SOS"]},{"keywords":["colaborar","Equipo 1","acompañamiento","asistencia sanitaria","psicológica"]}],"answer":"• Acceder junto al CB al puesto base.\n• Montar y manejar la instalación de seguridad para el Equipo 1 cuando exista riesgo de caída a distinto nivel.\n• Recopilar información adicional cuando sea posible.\n• Colaborar con la contención cuando sea necesario.\n• Realizar las funciones correspondientes del equipo SOS.\n• Colaborar con el Equipo 1 en el acompañamiento hasta la asistencia sanitaria y/o psicológica."},{"procop":"3.03","version":"v0.4 · mar. 2022","role":"BCBUP","type":"Funciones","facts":[{"keywords":["secuencia","emisora","comunicaciones"]},{"keywords":["ubicar","vehículo","reservando","espacio","fachada","VA","colchón"]},{"keywords":["control visual","PCS","alertar"]},{"keywords":["instalación","colchón","delegar","control visual"]}],"answer":"• Introducir la secuencia en la emisora y atender los requerimientos de comunicaciones.\n• Ubicar correctamente el vehículo, reservando espacio junto a la fachada para el VA y el colchón de salvamento, si procede.\n• Si existe amenaza de salto, mantener el control visual constante de la PCS y alertar al personal interviniente cuando sea necesario.\n• Colaborar en la instalación del colchón de salvamento si puede delegar el control visual de la PCS."},{"procop":"3.03","version":"v0.4 · mar. 2022","role":"Equipo VA · CBVA/BZ1VA-BZ2VA","type":"Funciones","facts":[{"keywords":["atención constante","presunto suicida","informar","Sargento"]},{"keywords":["a disposición","SG","tarea","encomiende"]},{"keywords":["ubicación","vehículo","espacio","colchón"]},{"keywords":["acercarse","cesta","SG"]},{"keywords":["mediar","desistimiento","CB","puesto base"]},{"keywords":["colaborar","instalación","colchón","VA","segundo plano"]}],"answer":"• Mantener atención constante al presunto suicida e informar de cualquier novedad al Sargento.\n• Permanecer a disposición del SG para cualquier otra tarea que se le encomiende.\n• Colaborar en la correcta ubicación del vehículo, dejando espacio para el colchón.\n• Acercarse a la ubicación de la víctima desde la cesta del VA cuando lo determine el SG.\n• Mediar con el presunto suicida para lograr el desistimiento cuando lo requiera el CB desde el puesto base.\n• Colaborar en la instalación del colchón si el VA pasa a un segundo plano, cuando sea posible o antes del acercamiento con el VA."},{"procop":"3.03","version":"v0.4 · mar. 2022","role":"BCVA","type":"Funciones","facts":[{"keywords":["secuencia","emisora","comunicaciones"]},{"keywords":["ubicar","vehículo","acceder","zona de trabajo","caída de objetos"]},{"keywords":["esperar","orden de emplazamiento"]},{"keywords":["manejar","brazo","escalera","puesto de mando","plataforma"]},{"keywords":["colaborar","instalación","colchón de salvamento"]}],"answer":"• Introducir la secuencia en la emisora y atender los requerimientos de comunicaciones.\n• Ubicar correctamente el vehículo para acceder a la zona de trabajo y quedar fuera del alcance de posibles caídas de objetos.\n• Esperar la orden de emplazamiento.\n• Manejar el brazo o la escalera desde el puesto de mando de la plataforma.\n• Colaborar en la instalación del colchón de salvamento cuando sea posible."},{"procop":"3.03","version":"v0.4 · mar. 2022","role":"Equipo AGT · BCAGT-BZAGT","type":"Funciones","facts":[{"keywords":["secuencia","emisora","comunicaciones"]},{"keywords":["instalar","colchón de salvamento"]},{"keywords":["funcionamiento","colchón","presión","zona segura"]},{"keywords":["reubicar","progresión","zona potencial de caída"]}],"answer":"• Introducir la secuencia en la emisora y atender los requerimientos de comunicaciones.\n• Instalar el colchón de salvamento.\n• Controlar el correcto funcionamiento del colchón y comprobar visualmente la presión desde una zona segura.\n• Reubicar el colchón según la progresión del presunto suicida y la zona potencial de caída."},{"procop":"3.03","version":"v0.4 · mar. 2022","role":"Equipo AMB · BCAMB-ENF","type":"Funciones","facts":[{"keywords":["secuencia","emisora","comunicaciones"]},{"keywords":["ubicar","vehículo","salida rápida","libre de obstáculos","traslado hospitalario"]},{"keywords":["obtener información","presunto suicida","familiares","vecinos"]},{"keywords":["colaborar","instalación","colchón"]},{"keywords":["esperar","orden de actuación","mando"]},{"keywords":["valorar","prestar","asistencia sanitaria"]},{"keywords":["traslados hospitalarios","procedan"]}],"answer":"• Introducir la secuencia en la emisora y atender los requerimientos de comunicaciones.\n• Ubicar el vehículo con salida rápida y libre de obstáculos para un posible traslado hospitalario.\n• Obtener información sobre el presunto suicida a través de familiares, vecinos u otras personas.\n• Colaborar en la instalación del colchón de salvamento cuando sea posible.\n• Esperar la orden de actuación del mando.\n• Valorar y prestar asistencia sanitaria.\n• Realizar los traslados hospitalarios que procedan."}];
+
+let FDATA=[],FDATA_LOADING=false,FDATA_ERROR="",FDATA_FALLBACK_NOTICE="";
+let FMODE="practice";
+
+function fBankValid(bank){
+ const validKeyword=keyword=>typeof keyword==="string"||(Array.isArray(keyword)&&keyword.length>0&&keyword.every(alias=>typeof alias==="string"));
+ const validFact=fact=>Array.isArray(fact)?fact.length>0&&fact.every(alias=>typeof alias==="string"):fact&&Array.isArray(fact.keywords)&&fact.keywords.length>0&&fact.keywords.every(validKeyword);
+ return Array.isArray(bank)&&bank.length>0&&bank.every(q=>q&&typeof q.procop==="string"&&typeof q.version==="string"&&typeof q.role==="string"&&(q.type==="Funciones"||q.type==="Material específico")&&Array.isArray(q.facts)&&q.facts.length>0&&q.facts.every(validFact)&&typeof q.answer==="string");
+}
+
+async function fLoadData(){
+ if(FDATA.length){fAvailable();return}
+ if(FDATA_LOADING)return;
+ FDATA_LOADING=true;FDATA_ERROR="";FDATA_FALLBACK_NOTICE="";$("fstart").disabled=true;$("favailability").textContent="Cargando banco de preguntas…";
+ try{
+  const {data,error}=await sb.storage.from("datos").download("funciones.json");
+  if(error||!data)throw error||new Error("No se encontró funciones.json en Supabase.");
+  const bank=JSON.parse(await data.text());
+  if(!fBankValid(bank))throw new Error("El archivo funciones.json tiene un formato no válido.");
+  FDATA=bank.filter(q => q && q.procop && q.procop !== "3.08" && !String(q.procop).includes("3.08"));
+ }catch(error){
+   const detail=error&&error.message&&error.message!=="{}"?String(error.message):"Comprueba que funciones.json esté en el bucket «datos» y que la app tenga permiso de lectura.";
+  if(typeof FDATA_LOCAL!=="undefined"&&Array.isArray(FDATA_LOCAL)&&FDATA_LOCAL.length){
+    FDATA=FDATA_LOCAL.filter(q => q && q.procop && q.procop !== "3.08" && !String(q.procop).includes("3.08"));
+    FDATA_FALLBACK_NOTICE="No se pudo cargar el banco de Supabase ("+detail+"); se está usando la copia local.";
+  }else{
+   FDATA_ERROR=String(detail);
+   $("favailability").textContent="No se pudo cargar el banco de preguntas: "+FDATA_ERROR;
+   $("fstart").disabled=true;
+   return;
+  }
+ }finally{
+  FDATA_LOADING=false;
+ }
+ fPopulateSelectors();
+ fAvailable();
+}
+
+function fPopulateSelectors(){
+ if(!FDATA.length)return;
+ const codes=[...new Set(FDATA.map(q=>q.procop))]
+  .filter(c => c && c !== "3.08" && !String(c).includes("3.08"))
+  .sort();
+ const optionsHtml='<option value="all">Todos los PROCOPs</option>'+codes.map(c=>'<option value="'+c+'">PROCOP '+c+'</option>').join("");
+ ["fprocop","ffichasProcop","fsearchProcop"].forEach(id=>{
+  const sel=$(id);
+  if(sel){
+   const prev=sel.value;
+   sel.innerHTML=optionsHtml;
+   if(codes.includes(prev))sel.value=prev;
+  }
+ });
+}
+
+let FTYPE="funciones",FROLE="all",FQUEUE=[],FIDX=0,FHITS=0,FPOINTS=0,FANSWERS=0,FMAX=0,FLOCKED=false,FCUR_UNITS=[];
+
+function fNorm(s){return String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[ø°º]/g,"o").replace(/[^a-z0-9]+/g," ").trim().replace(/\s+/g," ")}
+function fWordMatches(a,b){return a===b||(a.length>3&&a.slice(0,-1)===b)||(b.length>3&&b.slice(0,-1)===a)}
+function fHasAlias(alias,answer){
+ const words=fNorm(answer).split(" "),phrase=fNorm(alias).split(" ");
+ return phrase.length>0&&words.some((_,i)=>phrase.every((word,j)=>words[i+j]&&fWordMatches(words[i+j],word)));
+}
+function fMatches(fact,answer){
+ return fact.some(alias=>fHasAlias(alias,answer));
+}
+function fKeywordMatches(keyword,answer){
+ return (Array.isArray(keyword)?keyword:[keyword]).some(alias=>fHasAlias(alias,answer));
+}
+
+function fEvaluate(q,answer){
+ const literalLines=q.answer?q.answer.split(/\r?\n/).filter(line=>line.startsWith("• ")).map(line=>line.slice(2)):[];
+ const units=q.facts.map((fact,factIdx)=>{
+  let headingText="";
+  if(Array.isArray(fact)){
+   const matched=fMatches(fact,answer);
+   headingText=literalLines[factIdx]||fact[0];
+   return{text:headingText,keywords:[{text:fact[0],matched}],ratio:matched?1:0,matched};
+  }
+  const keywords=fact.keywords.map(keyword=>({text:Array.isArray(keyword)?keyword.join(" / "):keyword,matched:fKeywordMatches(keyword,answer)}));
+  const hits=keywords.filter(keyword=>keyword.matched).length;
+  const ratio=keywords.length?hits/keywords.length:0;
+  const matched=ratio===1;
+
+  if(fact.text){
+   headingText=fact.text;
+  }else if(literalLines[factIdx]){
+   headingText=literalLines[factIdx];
+  }else{
+   headingText=keywords.map(k=>k.text).join(", ");
+  }
+
+  return{text:headingText,keywords,ratio,matched:ratio>=0.5};
+ });
+ const score=units.length?Math.round(units.reduce((sum,unit)=>sum+(unit.ratio===1?1:unit.ratio>=0.5?0.5:0),0)/units.length*1000)/100:0;
+ return{units,score,complete:units.length>0&&units.every(unit=>unit.ratio===1)};
+}
+
+function fStatId(q){return "func:"+q.procop+":"+fNorm(q.role).replace(/\s+/g,"_")+":"+fNorm(q.type)}
+function fStatName(q){return "PROCOP "+q.procop+" · "+q.type+" · "+q.role}
+function fRecord(q,complete){
+ enqueue({t:"func",id:fStatId(q),name:fStatName(q),ok:complete});
+}
+
+function fSetMode(mode){
+ FMODE=mode;
+ [...$("fmode").children].forEach(b=>b.setAttribute("aria-pressed",b.dataset.m===mode));
+ $("fsetup").classList.toggle("hide",mode!=="practice"||!$("frun").classList.contains("hide")||!$("fend").classList.contains("hide"));
+ $("fichasView").classList.toggle("hide",mode!=="fichas");
+ $("fsearchView").classList.toggle("hide",mode!=="search");
+ $("fstatsView").classList.toggle("hide",mode!=="stats");
+
+ if(mode==="practice"){
+  if($("frun").classList.contains("hide")&&$("fend").classList.contains("hide")){
+   $("fsetup").classList.remove("hide");
+   fAvailable();
+  }
+ }else if(mode==="fichas"){
+  $("frun").classList.add("hide");$("fend").classList.add("hide");
+  fRenderFichas();
+ }else if(mode==="search"){
+  $("frun").classList.add("hide");$("fend").classList.add("hide");
+  fRenderSearch();
+ }else if(mode==="stats"){
+  $("frun").classList.add("hide");$("fend").classList.add("hide");
+  fLoadStats();
+ }
+ window.scrollTo(0,0);
+}
+
+function fShowStats(){fSetMode("stats")}
+
+async function fLoadStats(){
+ const msg=$("fstatsMessage");msg.textContent="Cargando estadísticas…";
+ $("fhighlights").textContent="";$("fallQuestions").textContent="";
+ if(!SESSION){msg.textContent="Inicia sesión para consultar tus estadísticas.";return}
+ try{
+  const {data,error}=await sb.from("function_stats").select("function_id,function_name,correct_count,incorrect_count").order("updated_at",{ascending:false});
+  if(error){msg.textContent="No se pudieron cargar las estadísticas: "+String(error.message||error);return}
+  const rows=(data||[]).map(r=>({name:r.function_name,ok:Number(r.correct_count),ko:Number(r.incorrect_count)}))
+   .map(r=>({...r,score:pct(r.ok,r.ko),attempts:r.ok+r.ko}));
+  if(!rows.length)msg.textContent="Todavía no hay resultados guardados en Funciones y material específico.";
+  else msg.textContent="Estas estadísticas pertenecen solo a Funciones y material específico. Las respuestas parciales cuentan como fallos.";
+  const ranked=[...rows].sort((a,b)=>a.score-b.score||b.attempts-a.attempts||a.name.localeCompare(b.name));
+  const strongest=[...ranked].sort((a,b)=>b.score-a.score||b.attempts-a.attempts||a.name.localeCompare(b.name));
+  const highlight=(title,items)=>'<div class="stat fhighlight"><b class="fhighlight-title">'+title+'</b>'+
+   items.map(r=>'<div class="fhighlight-item"><span>'+esc(r.name)+'</span><b>'+r.score+'%</b></div>').join("")+'</div>';
+  $("fhighlights").innerHTML=rows.length
+   ?highlight("Peor llevas",ranked.slice(0,3))+highlight("Mejor llevas",strongest.slice(0,3))
+   :"";
+  const all=ranked.map(r=>{
+   const color=r.score>=70?"var(--ok)":r.score<40?"var(--ko)":"var(--acc)";
+   const bar='<div class="bar" role="img" aria-label="Puntuación '+r.score+'%"><i style="width:'+r.score+'%;background:'+color+'"></i></div>';
+   return[esc(r.name),pl(r.ok,"acierto","aciertos"),pl(r.ko,"fallo","fallos"),r.score+"%"+bar];
+  });
+  $("fallQuestions").innerHTML=tbl(all,["Pregunta (puesto/caso)","Aciertos","Fallos","Puntuación"]);
+ }catch(error){
+  msg.textContent="No se pudieron cargar las estadísticas: "+String((error&&(error.message||error.error))||error||"sin detalle");
+ }
+}
+
+let fclearArmed=false,fclearTimer=null;
+function fClearStats(){
+ const button=$("fstatsClear");
+ if(!SESSION){$("fstatsMessage").textContent="Inicia sesión para borrar tus estadísticas.";return}
+ if(!fclearArmed){
+  fclearArmed=true;button.textContent="Pulsa otra vez para confirmar";
+  clearTimeout(fclearTimer);
+  fclearTimer=setTimeout(()=>{fclearArmed=false;button.textContent="Borrar mis estadísticas"},4000);
+  return;
+ }
+ fclearArmed=false;clearTimeout(fclearTimer);button.disabled=true;button.textContent="Borrando…";
+ $("fstatsMessage").textContent="Borrando estadísticas…";
+ queue=queue.filter((job,index)=>(sending&&index===0)||job.t!=="func");
+ enqueue({t:"fclear"});
+}
+
+function fTypeMatches(q){return FTYPE==="ambas"||(FTYPE==="funciones"&&q.type==="Funciones")||(FTYPE==="material"&&q.type==="Material específico")}
+
+function fRoleMatches(q){
+ if(FROLE==="all")return true;
+ const r=q.role.toLowerCase();
+ if(FROLE==="bz")return r.includes("bz")||r.includes("zapador")||r.includes("equipo 1")||r.includes("equipo 2");
+ if(FROLE==="bc")return r.includes("bc")||r.includes("conductor");
+ if(FROLE==="sos")return r.includes("sos")||r.includes("ampliada")||r.includes("reserva")||r.includes("apoyo");
+ return true;
+}
+
+function fGetFilteredPool(){
+ const proc=$("fprocop").value;
+ return FDATA.filter(q=>(proc==="all"||q.procop===proc)&&fTypeMatches(q)&&fRoleMatches(q));
+}
+
+function fAvailable(){
+ if(!FDATA.length){
+  $("favailability").textContent=FDATA_ERROR?"No se pudo cargar el banco de preguntas: "+FDATA_ERROR:FDATA_LOADING?"Cargando banco de preguntas…":"El banco de preguntas se cargará al abrir este apartado.";
+  $("fstart").disabled=true;
+  if($("frandom"))$("frandom").disabled=true;
+  return;
+ }
+ const pool=fGetFilteredPool();
+ const notice=FDATA_FALLBACK_NOTICE?FDATA_FALLBACK_NOTICE+" ":"";
+ $("favailability").textContent=notice+(pool.length?pool.length+" preguntas disponibles según tus filtros.":FTYPE==="material"?"No hay material específico por puesto para este filtro.":"No hay preguntas para esta combinación.");
+ $("fstart").disabled=!pool.length;
+ if($("frandom"))$("frandom").disabled=!pool.length;
+}
+
+function fStart(randomOne=false){
+ const pool=fGetFilteredPool();
+ if(!pool.length)return;
+ FQUEUE=randomOne?[pool[Math.floor(Math.random()*pool.length)]]:[...pool].sort(()=>Math.random()-.5);
+ FIDX=0;FHITS=0;FPOINTS=0;FANSWERS=0;FMAX=0;FLOCKED=false;FCUR_UNITS=[];
+ $("fsetup").classList.add("hide");$("fend").classList.add("hide");$("frun").classList.remove("hide");
+ window.scrollTo(0,0);
+ fRender();
+}
+
+function fPracticeSpecificQuestion(targetQ){
+ fSetMode("practice");
+ FQUEUE=[targetQ];
+ FIDX=0;FHITS=0;FPOINTS=0;FANSWERS=0;FMAX=0;FLOCKED=false;FCUR_UNITS=[];
+ $("fsetup").classList.add("hide");$("fend").classList.add("hide");$("frun").classList.remove("hide");
+ window.scrollTo(0,0);
+ fRender();
+}
+
+function fRender(){
+ if(FIDX>=FQUEUE.length){
+  $("frun").classList.add("hide");$("fend").classList.remove("hide");
+  const grade=FMAX?Math.round(FPOINTS/FMAX*100)/10:0;
+  $("ftotal").className="grade "+(grade>=5?"pos":"neg");
+  $("ftotal").innerHTML="<b>"+grade+"<small> / 10</small></b>";
+  $("fsummary").textContent="Respuestas: "+FANSWERS+" · Preguntas completas: "+FHITS+" de "+FANSWERS;
+  return;
+ }
+ const q=FQUEUE[FIDX];FLOCKED=false;FCUR_UNITS=[];
+ $("fnum").textContent=(FIDX+1)+" / "+FQUEUE.length;$("fbar").style.width=Math.round(FIDX/FQUEUE.length*100)+"%";
+ $("ffkind").textContent=q.type+" · PROCOP "+q.procop+" · "+q.version;
+ $("fquestion").textContent="Indica "+(q.type==="Funciones"?"las funciones":"el material específico")+" de "+q.role+".";
+ $("fanswer").value="";$("fanswer").disabled=false;$("fsubmit").disabled=false;$("fskip").disabled=false;
+ $("fcounts").textContent="0 caracteres · 0 líneas";
+ $("fnext").classList.add("hide");$("fmarking").classList.add("hide");$("flinefeedback").textContent="";
+ $("fcorrect").classList.add("hide");$("fcorrect").textContent="";$("fresult").textContent="";
+ $("fscore").textContent="Nota "+(FMAX?Math.round(FPOINTS/FMAX*100)/10:0)+"/10";
+ $("fprogress").textContent="Nota acumulada: "+(FMAX?Math.round(FPOINTS/FMAX*100)/10:0)+"/10";
+ $("fanswer").focus();
+}
+
+function fShowMarking(q,units){
+ FCUR_UNITS=units;
+ const list=$("flinefeedback");list.textContent="";
+ units.forEach((unit,index)=>{
+  const item=document.createElement("li");
+  item.className=unit.ratio===1?"fline-ok":unit.ratio>0?"fline-partial":"fline-missed";
+  item.id="fitem_"+index;
+
+  const heading=document.createElement("div");heading.className="fline-title";
+
+  const leftDiv=document.createElement("div");
+  leftDiv.style.cssText="display:flex;align-items:flex-start;gap:8px;flex:1";
+
+  const cb=document.createElement("input");
+  cb.type="checkbox";
+  cb.checked=unit.ratio===1;
+  cb.className="fcheck";
+  cb.title="Marcar como válida si lo explicaste con tus palabras";
+  cb.style.cssText="margin-top:3px;cursor:pointer;width:17px;height:17px;accent-color:var(--acc)";
+  cb.onchange=()=>fToggleManual(index,cb.checked);
+
+  const text=document.createElement("strong");
+  text.textContent=(index+1)+". "+unit.text;
+  text.style.cssText="line-height:1.35;cursor:pointer";
+  text.onclick=()=>{cb.checked=!cb.checked;fToggleManual(index,cb.checked)};
+
+  leftDiv.append(cb,text);
+
+  const status=document.createElement("span");
+  status.className="fline-state";
+  status.id="fstate_"+index;
+  status.textContent=unit.ratio===1?"Correcta":unit.ratio>0?"Parcial":"Incorrecta";
+
+  heading.append(leftDiv,status);
+  item.appendChild(heading);
+
+  const keywords=document.createElement("div");keywords.className="fline-keys";
+  keywords.style.marginLeft="25px";
+  unit.keywords.forEach(keyword=>{
+   const tag=document.createElement("span");
+   tag.className=keyword.matched?"key-ok":"key-miss";
+   tag.textContent=(keyword.matched?"✓ ":"✗ ")+keyword.text;
+   keywords.appendChild(tag);
+  });
+  item.appendChild(keywords);
+  list.appendChild(item);
+ });
+ $("fmarking").classList.remove("hide");
+}
+
+function fToggleManual(index,isChecked){
+ if(!FCUR_UNITS[index])return;
+ const unit=FCUR_UNITS[index];
+ unit.ratio=isChecked?1:0;
+ unit.matched=isChecked;
+
+ const item=$("fitem_"+index);
+ if(item){
+  item.className=isChecked?"fline-ok":"fline-missed";
+ }
+ const state=$("fstate_"+index);
+ if(state){
+  state.textContent=isChecked?"Correcta":"Incorrecta";
+ }
+
+ const q=FQUEUE[FIDX];
+ const hits=FCUR_UNITS.filter(u=>u.ratio===1).length;
+ const total=FCUR_UNITS.length;
+ const newScore=total?Math.round((hits/total)*1000)/100:0;
+ const isComplete=hits===total;
+
+ $("fscore").textContent="Nota "+newScore+"/10";
+ $("fresult").textContent=(isComplete?"Correcta":hits>0?"Parcial":"Incorrecta")+" · "+newScore+"/10";
+
+ fRecord(q,isComplete);
+}
+
+function fCheck(skip=false){
+ if(FLOCKED)return;
+ const answer=$("fanswer").value.trim();
+ if(!skip&&!answer){$("fresult").textContent="Escribe una respuesta antes de corregir.";return}
+ const q=FQUEUE[FIDX],evaluation=fEvaluate(q,answer),score=evaluation.score;
+ FHITS+=evaluation.complete?1:0;FANSWERS++;FPOINTS+=score;FMAX+=10;FLOCKED=true;
+ fRecord(q,evaluation.complete);
+ $("fanswer").disabled=true;$("fsubmit").disabled=true;$("fskip").disabled=true;
+ $("fscore").textContent="Nota "+score+"/10";
+ $("fresult").textContent=skip?"No lo sé · 0/10":(evaluation.complete?"Correcta":score?"Parcial":"Incorrecta")+" · "+score+"/10";
+ fShowMarking(q,evaluation.units);
+ $("fcorrect").innerHTML='<b>Respuesta oficial del PROCOP:</b><br>'+esc(q.answer).replace(/\n/g,'<br>');
+ $("fcorrect").classList.remove("hide");
+ $("fprogress").textContent="Nota acumulada: "+Math.round(FPOINTS/FMAX*100)/10+"/10";
+ $("fnext").textContent=FIDX===FQUEUE.length-1?"Ver resultado":"Siguiente →";$("fnext").classList.remove("hide");
+}
+
+function fNext(){FIDX++;fRender()}
+
+function fRenderFichas(){
+ const proc=$("ffichasProcop").value;
+ const type=$("ffichasType").value;
+ const container=$("ffichasContainer");
+ container.textContent="";
+
+ const items=FDATA.filter(q=>(proc==="all"||q.procop===proc)&&(type==="all"||q.type===type));
+ if(!items.length){
+  container.innerHTML='<div class="mut" style="text-align:center;padding:20px">No hay fichas con los filtros seleccionados.</div>';
+  return;
+ }
+
+ const renderCard=q=>{
+  const card=document.createElement("div");
+  card.className="card";
+  card.style.cssText="margin:0;padding:14px;border:1px solid var(--line);background:var(--bg)";
+
+  const topRow=document.createElement("div");
+  topRow.className="row";
+  topRow.style.cssText="margin-bottom:6px;gap:6px";
+  topRow.innerHTML='<span class="chip" style="font-size:12px">'+esc(q.type)+' · PROCOP '+esc(q.procop)+'</span><span class="mut" style="font-size:12px">'+esc(q.version)+'</span>';
+
+  const title=document.createElement("div");
+  title.style.cssText="font-size:16px;font-weight:700;color:var(--ink);margin-bottom:8px";
+  title.textContent=q.role;
+
+  const ansBox=document.createElement("div");
+  ansBox.style.cssText="font-size:14px;line-height:1.45;color:var(--ink);background:var(--card);padding:10px 12px;border-radius:10px;border:1px solid var(--line);margin-bottom:10px";
+  ansBox.innerHTML=esc(q.answer).replace(/\n/g,"<br>");
+
+  const botRow=document.createElement("div");
+  botRow.className="row foot";
+  botRow.style.cssText="margin-top:6px";
+
+  const btnPrac=document.createElement("button");
+  btnPrac.className="btn ghost small";
+  btnPrac.type="button";
+  btnPrac.textContent="✍️ Practicar este puesto";
+  btnPrac.onclick=()=>fPracticeSpecificQuestion(q);
+
+  botRow.appendChild(btnPrac);
+  card.append(topRow,title,ansBox,botRow);
+  return card;
+ };
+
+ if(type==="all"){
+  const procops=[...new Set(items.map(q=>q.procop))].sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));
+  const fichaGroupKey=q=>{
+   const parts=q.role.split(/\s+·\s+/);
+   return parts.length>2?parts.slice(0,2).join(" · "):q.role;
+  };
+
+  procops.forEach(code=>{
+   const group=document.createElement("section");
+   group.style.cssText="display:grid;gap:8px;margin-bottom:12px";
+
+   const heading=document.createElement("div");
+   heading.className="lab";
+   heading.style.cssText="margin-top:0;padding-bottom:6px;border-bottom:1px solid var(--line)";
+   heading.textContent="PROCOP "+code;
+   group.appendChild(heading);
+
+   const roles=new Map();
+   items.filter(q=>q.procop===code).forEach(q=>{
+    const key=fichaGroupKey(q);
+    if(!roles.has(key))roles.set(key,[]);
+    roles.get(key).push(q);
+   });
+
+   roles.forEach((roleItems,roleName)=>{
+    const roleGroup=document.createElement("section");
+    roleGroup.style.cssText="display:grid;gap:8px;padding:10px;border:1px solid var(--line);border-radius:12px";
+
+    const roleHeading=document.createElement("div");
+    roleHeading.style.cssText="font-size:15px;font-weight:700;color:var(--ink)";
+    roleHeading.textContent=roleName;
+    roleGroup.appendChild(roleHeading);
+
+    ["Funciones","Material específico"].forEach(groupType=>{
+     const typeItems=roleItems.filter(q=>q.type===groupType);
+     if(!typeItems.length)return;
+
+     const typeHeading=document.createElement("div");
+     typeHeading.style.cssText="font-size:14px;font-weight:700;color:var(--ink);margin-top:4px";
+     typeHeading.textContent=groupType;
+     roleGroup.appendChild(typeHeading);
+     typeItems.forEach(q=>roleGroup.appendChild(renderCard(q)));
+    });
+
+    group.appendChild(roleGroup);
+   });
+
+   container.appendChild(group);
+  });
+  return;
+ }
+
+ items.forEach(q=>container.appendChild(renderCard(q)));
+}
+
+function fSearchText(q){
+ const facts=q.facts.map(f=>{
+  if(Array.isArray(f))return f.join(" ");
+  const keywords=f.keywords.map(k=>Array.isArray(k)?k.join(" "):k).join(" ");
+  return [f.text||"",keywords].join(" ");
+ }).join(" ");
+ return fNorm([q.type,q.procop,q.role,q.answer,facts].join(" "));
+}
+
+function fRenderSearch(){
+ const query=fNorm($("fsearchInput").value);
+ const proc=$("fsearchProcop").value;
+ const container=$("fsearchContainer");
+ container.textContent="";
+
+ const items=FDATA.filter(q=>proc==="all"||q.procop===proc);
+ const filtered=query?items.filter(q=>fSearchText(q).includes(query)):items;
+
+ $("fsearchCount").textContent=filtered.length+" resultado"+(filtered.length===1?"":"s");
+ if(!filtered.length){
+  container.innerHTML='<div class="mut" style="text-align:center;padding:24px">No se encontraron fichas con ese término de búsqueda.</div>';
+  return;
+ }
+
+ filtered.forEach(q=>{
+  const card=document.createElement("div");
+  card.className="card";
+  card.style.cssText="margin:0;padding:14px;border:1px solid var(--line);background:var(--bg)";
+
+  const topRow=document.createElement("div");
+  topRow.className="row";
+  topRow.style.cssText="margin-bottom:6px";
+  topRow.innerHTML='<span class="chip" style="font-size:12px">'+esc(q.type)+' · PROCOP '+esc(q.procop)+'</span><span class="mut" style="font-size:12px">'+esc(q.version)+'</span>';
+
+  const title=document.createElement("div");
+  title.style.cssText="font-size:16px;font-weight:700;color:var(--ink);margin-bottom:8px";
+  title.textContent=q.role;
+
+  const ansBox=document.createElement("div");
+  ansBox.style.cssText="font-size:14px;line-height:1.45;color:var(--ink);background:var(--card);padding:10px 12px;border-radius:10px;border:1px solid var(--line);margin-bottom:8px";
+  ansBox.innerHTML=esc(q.answer).replace(/\n/g,"<br>");
+
+  const botRow=document.createElement("div");
+  botRow.className="row foot";
+  botRow.style.cssText="margin-top:6px";
+
+  const btnPrac=document.createElement("button");
+  btnPrac.className="btn ghost small";
+  btnPrac.type="button";
+  btnPrac.textContent="✍️ Practicar esta pregunta";
+  btnPrac.onclick=()=>fPracticeSpecificQuestion(q);
+
+  botRow.appendChild(btnPrac);
+  card.append(topRow,title,ansBox,botRow);
+  container.appendChild(card);
+ });
+}
+
+function fInit(){
+ const sel=$("fprocop");
+ sel.innerHTML='<option value="all">Todos los PROCOPs</option>';
+
+ $("fmode").onclick=e=>{
+  const b=e.target.closest("button[data-m]");
+  if(!b)return;
+  fSetMode(b.dataset.m);
+ };
+
+ $("ftype").onclick=e=>{
+  const b=e.target.closest("button[data-v]");
+  if(!b)return;
+  FTYPE=b.dataset.v;
+  [...$("ftype").children].forEach(x=>x.setAttribute("aria-pressed",x===b));
+  fAvailable();
+ };
+
+ $("frole").onchange=e=>{
+  FROLE=e.target.value;
+  fAvailable();
+ };
+
+ sel.onchange=fAvailable;
+ $("fstart").onclick=()=>fStart(false);
+ if($("frandom"))$("frandom").onclick=()=>fStart(true);
+ $("fform").onsubmit=e=>{e.preventDefault();fCheck()};
+ $("fskip").onclick=()=>fCheck(true);
+ $("fnext").onclick=fNext;
+ $("fback").onclick=()=>{
+  $("frun").classList.add("hide");
+  $("fsetup").classList.remove("hide");
+  fAvailable();
+ };
+ $("frestart").onclick=()=>{
+  $("fend").classList.add("hide");
+  $("fsetup").classList.remove("hide");
+  fAvailable();
+ };
+
+ if($("fstatsOpen"))$("fstatsOpen").onclick=fShowStats;
+ $("fstatsEnd").onclick=fShowStats;
+ $("fstatsRefresh").onclick=fLoadStats;
+ $("fstatsClear").onclick=fClearStats;
+ $("fstatsBack").onclick=()=>fSetMode("practice");
+
+ $("ffichasProcop").onchange=fRenderFichas;
+ $("ffichasType").onchange=fRenderFichas;
+
+ $("fsearchInput").oninput=fRenderSearch;
+ $("fsearchProcop").onchange=fRenderSearch;
+
+ $("fanswer").addEventListener("input",()=>{
+  const val=$("fanswer").value;
+  const lines=val?val.split("\n").length:0;
+  $("fcounts").textContent=val.length+" caracteres · "+lines+" líneas";
+ });
+}
+
 async function openCall(){
  view("call");
  if(started)return;
@@ -849,7 +1546,8 @@ async function enter(session){
  flush();
 }
 $("mCall").onclick=openCall;
-$("mFunc").onclick=()=>view("func");
+$("mFunc").onclick=async()=>{$("fsetup").classList.remove("hide");$("frun").classList.add("hide");$("fend").classList.add("hide");$("fstatsView").classList.add("hide");view("func");await fLoadData()};
+fInit();
 $("back").onclick=()=>view("menu");
 $("lform").onsubmit=async e=>{
  e.preventDefault();$("lerr").textContent="";$("lgo").disabled=true;
