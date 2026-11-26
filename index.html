@@ -211,6 +211,13 @@ input[type=email]:focus,input[type=password]:focus{outline:2px solid var(--acc);
    <option value="bc">Solo Bomberos Conductores (BC)</option>
    <option value="sos">Dotaciones SOS / Ampliadas / Reserva</option>
   </select>
+  <div class="lab">Número de preguntas</div>
+  <select id="fquestionCount" aria-label="Número de preguntas" style="border-radius:12px;width:100%">
+   <option value="all" selected>Todas las disponibles</option>
+   <option value="5">5 preguntas</option>
+   <option value="10">10 preguntas</option>
+   <option value="20">20 preguntas</option>
+  </select>
   <div class="mut" id="favailability" style="margin-top:8px"></div>
   <div class="row foot">
    <span class="mut">La nota se calcula por conceptos clave con auto-validación.</span>
@@ -1170,8 +1177,10 @@ function fAvailable(){
   return;
  }
  const pool=fGetFilteredPool();
+ const countChoice=$("fquestionCount").value;
+ const selectedCount=countChoice==="all"?pool.length:Math.min(Number(countChoice),pool.length);
  const notice=FDATA_FALLBACK_NOTICE?FDATA_FALLBACK_NOTICE+" ":"";
- $("favailability").textContent=notice+(pool.length?pool.length+" preguntas disponibles según tus filtros.":FTYPE==="material"?"No hay material específico por puesto para este filtro.":"No hay preguntas para esta combinación.");
+ $("favailability").textContent=notice+(pool.length?pool.length+" preguntas disponibles según tus filtros. Esta práctica tendrá "+selectedCount+".":FTYPE==="material"?"No hay material específico por puesto para este filtro.":"No hay preguntas para esta combinación.");
  $("fstart").disabled=!pool.length;
  if($("frandom"))$("frandom").disabled=!pool.length;
 }
@@ -1179,7 +1188,14 @@ function fAvailable(){
 function fStart(randomOne=false){
  const pool=fGetFilteredPool();
  if(!pool.length)return;
- FQUEUE=randomOne?[pool[Math.floor(Math.random()*pool.length)]]:[...pool].sort(()=>Math.random()-.5);
+ const countChoice=$("fquestionCount").value;
+ const selectedCount=countChoice==="all"?pool.length:Math.min(Number(countChoice),pool.length);
+ const shuffled=[...pool];
+ for(let i=shuffled.length-1;i>0;i--){
+  const j=Math.floor(Math.random()*(i+1));
+  [shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]];
+ }
+ FQUEUE=shuffled.slice(0,randomOne?1:selectedCount);
  FIDX=0;FHITS=0;FPOINTS=0;FANSWERS=0;FMAX=0;FLOCKED=false;FCUR_UNITS=[];
  $("fsetup").classList.add("hide");$("fend").classList.add("hide");$("frun").classList.remove("hide");
  window.scrollTo(0,0);
@@ -1495,6 +1511,7 @@ function fInit(){
  };
 
  sel.onchange=fAvailable;
+ $("fquestionCount").onchange=fAvailable;
  $("fstart").onclick=()=>fStart(false);
  if($("frandom"))$("frandom").onclick=()=>fStart(true);
  $("fform").onsubmit=e=>{e.preventDefault();fCheck()};
